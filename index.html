@@ -2,136 +2,411 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f2f0e7">
-  <meta name="description" content="A living field guide to purposeful web motion: six small studies, playful experiments, and code to make the scroll feel something.">
-  <title>Motion Field — Make the scroll feel something</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0c0a">
+  <meta name="description" content="Motion Field is a free library of web motion studies: scroll cues, reveals, live shaders and micro-interactions, each with a copy-ready AI prompt and plain vanilla code.">
+  <title>Motion Field: a library of web motion studies</title>
+  <meta property="og:title" content="Motion Field: make the scroll feel something">
+  <meta property="og:description" content="Live motion studies, shaders and components with copy-ready prompts and vanilla code.">
+  <meta property="og:image" content="assets/thumbs/hero-poster.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" as="image" href="assets/thumbs/hero-poster.webp">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
-  <div class="reading-progress" aria-hidden="true"><span id="reading-progress-bar"></span></div>
-  <header class="site-header" id="top">
-    <a class="brand" href="#top" aria-label="Motion Field home">
-      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-      <span class="brand-name">MOTION<span>FIELD</span><small>ISSUE 01 / 2026</small></span>
-    </a>
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="Open navigation"><span></span><span></span></button>
-    <nav class="main-nav" id="main-nav" aria-label="Main navigation">
-      <a href="#library">The atlas <sup>06</sup></a>
-      <a href="#playground">Playground</a>
-      <a href="#fieldnotes">Field notes</a>
-    </nav>
-    <a class="header-cta" href="#library">Find a feeling <span aria-hidden="true">↗</span></a>
+  <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+
+  <div class="announce" role="region" aria-label="Announcement">
+    <span class="announce__tag">Issue 02</span>
+    <span class="announce__text">New live shader studies and copy-ready prompts, free while the field grows.</span>
+    <a class="announce__link" href="#shaders">See what's new <span aria-hidden="true">→</span></a>
+  </div>
+
+  <header class="nav" id="top">
+    <div class="nav__inner">
+      <a class="brand" href="#main" aria-label="Motion Field home">
+        <span class="brand__mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span class="brand__name">Motion<b>Field</b></span>
+      </a>
+      <nav class="nav__links" id="nav-links" aria-label="Main">
+        <a href="#library">Library</a>
+        <a href="#lab">Live lab</a>
+        <a href="#components">Components</a>
+        <a href="#shaders">Shaders</a>
+        <a href="#sections">Sections</a>
+        <a href="#screens">UI</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="nav__end">
+        <a class="pill pill--lime pill--sm magnetic" href="#library"><span>Get the prompts</span> <i aria-hidden="true">→</i></a>
+        <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Open menu"><span></span><span></span></button>
+      </div>
+    </div>
   </header>
 
   <main id="main">
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-topline"><span>AN OPEN FIELD GUIDE TO WEB MOTION</span><span>EST. IN CURIOSITY <b>✳</b></span></div>
-      <div class="hero-frame" id="hero-frame">
-        <video class="hero-video" autoplay muted loop playsinline poster="assets/hero-kinetic-still-life.webp" aria-label="A lime glass sphere suspended in moving chrome ribbons">
-          <source src="assets/hero-loop.mp4" type="video/mp4">
-        </video>
-        <div class="hero-shade" aria-hidden="true"></div>
-        <div class="hero-copy">
-          <p class="hero-kicker"><span class="pulse-dot"></span> GOOD MOTION HAS A POINT OF VIEW</p>
-          <h1 id="hero-title">Make the<br><em>scroll</em> feel<br>something<span>.</span></h1>
-          <p class="hero-intro">A little field guide for pages that move with meaning. Six playful studies, ready to pull apart and make your own.</p>
-          <div class="hero-actions">
-            <a class="button button-lime" href="#library">Wander the atlas <span aria-hidden="true">↓</span></a>
-            <a class="hero-text-link" href="#playground"><span class="play-orb" aria-hidden="true">▶</span> Try a tiny experiment</a>
+    <!-- HERO: pinned, video shrinks into a card as you scroll -->
+    <section class="hero" id="hero" aria-labelledby="hero-title">
+      <div class="hero__sticky">
+        <div class="hero__media" id="hero-media">
+          <video class="hero__video" autoplay muted loop playsinline preload="auto" poster="assets/thumbs/hero-poster.webp" aria-hidden="true">
+            <source src="assets/hero-loop-web.mp4" type="video/mp4">
+          </video>
+          <div class="hero__shade"></div>
+          <div class="hero__grain"></div>
+        </div>
+        <div class="hero__light" aria-hidden="true"></div>
+        <div class="hero__content" id="hero-content">
+          <a class="hero__badge" href="#shaders" data-hero-in style="--d:0"><span class="dot"></span> Fresh studies every issue <span aria-hidden="true">→</span></a>
+          <h1 id="hero-title" class="hero__title">
+            <span class="line"><span data-hero-in style="--d:1">Make the scroll</span></span>
+            <span class="line"><em data-hero-in style="--d:2">feel something.</em></span>
+          </h1>
+          <p class="hero__sub" data-hero-in style="--d:3">A field guide of web motion studies, live shaders and micro-interactions. Each one comes with a copy-ready AI prompt and plain vanilla code. Paste it, tune it, ship it.</p>
+          <div class="hero__ctas" data-hero-in style="--d:4">
+            <a class="pill pill--lime magnetic" href="#library"><span>Browse the library</span> <i aria-hidden="true">→</i></a>
+            <a class="pill pill--ghost magnetic" href="#lab"><span>See it running live</span></a>
+          </div>
+          <div class="hero__proof" data-hero-in style="--d:5">
+            <span class="avatars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            <span>Made for designers, developers &amp; vibe-coders. <b>No build step. No lock-in.</b></span>
           </div>
         </div>
-        <div class="hero-sticker sticker-top"><span>FIELD STUDY</span><b>NO. 001</b><i>✳</i></div>
-        <div class="hero-caption"><span>FORM IN FLUX</span><span>01 — 06</span></div>
-        <span class="hero-side-note"><span class="pointer-hint">MOVE A LITTLE. SEE WHAT SHIFTS. ↘</span><span class="touch-hint">TAP A STUDY TO UNFOLD. ↗</span></span>
-      </div>
-      <div class="hero-foot"><span>INDEPENDENTLY CURATED, ALWAYS IN MOTION</span><a href="#library">SCROLL TO WANDER <b>↓</b></a><span>BUILT FOR CURIOUS BUILDERS</span></div>
-    </section>
-
-    <div class="ticker" aria-label="Motion with a reason, always"><div class="ticker-track" aria-hidden="true">
-      <span>LESS WOW, MORE WHY</span><i>✳</i><span>MAKE THE SCROLL FEEL SOMETHING</span><i>✳</i><span>MOTION WITH A REASON</span><i>✳</i><span>LESS WOW, MORE WHY</span><i>✳</i><span>MAKE THE SCROLL FEEL SOMETHING</span><i>✳</i>
-    </div></div>
-
-    <section class="library section-wrap" id="library" aria-labelledby="library-title">
-      <div class="section-topline"><span>01 / THE ATLAS</span><span>06 STUDIES FOR THE IN-BETWEEN</span></div>
-      <div class="library-heading">
-        <div><p class="kicker">PICK A PATH. FOLLOW A FEELING.</p><h2 id="library-title">Small moves.<br><em>Big feeling.</em></h2></div>
-        <div class="library-aside"><span class="aside-mark">↙</span><p>Little buildable recipes for pages that drift, reveal, respond and surprise. Take one apart. Put it back together differently.</p></div>
-      </div>
-      <div class="library-controls">
-        <div class="filter-list" role="group" aria-label="Filter studies by category">
-          <button class="filter-chip is-active" type="button" data-filter="all" aria-pressed="true">All studies <span>06</span></button>
-          <button class="filter-chip" type="button" data-filter="scroll" aria-pressed="false">Scroll cues</button>
-          <button class="filter-chip" type="button" data-filter="reveal" aria-pressed="false">Reveals</button>
-          <button class="filter-chip" type="button" data-filter="type" aria-pressed="false">Type play</button>
-          <button class="filter-chip" type="button" data-filter="3d" aria-pressed="false">3D &amp; depth</button>
+        <div class="hero__aside" id="hero-aside" aria-hidden="true">
+          <span class="mono">Study 00 / Kinetic still life</span>
+          <span class="mono">Scroll <b class="hero__scrollcue"></b></span>
         </div>
-        <label class="search-wrap"><span aria-hidden="true">⌕</span><input id="library-search" type="search" placeholder="Find a feeling…" aria-label="Search studies"><kbd>/</kbd></label>
+        <p class="hero__statement" id="hero-statement"><span class="mono">Motion is a material</span>Small moves. <em>Big feeling.</em></p>
       </div>
-      <div class="card-grid" id="card-grid" aria-live="polite"></div>
-      <div class="empty-state" id="empty-state" hidden><span>✳</span><p>No studies found. Try another feeling or category.</p><button type="button" class="clear-search">Clear filters</button></div>
-      <div class="library-endnote"><span><b>06</b> SMALL EXPERIMENTS</span><span>MADE TO BE PULLED APART, PLAYED WITH, AND MADE YOURS</span><span>↘</span></div>
     </section>
 
-    <section class="playground" id="playground" aria-labelledby="playground-title">
-      <div class="playground-inner">
-        <div class="playground-topline"><span>02 / THE LITTLE PLAYGROUND</span><span>NO FRAMEWORK REQUIRED</span></div>
-        <div class="playground-layout">
-          <div class="playground-copy">
-            <p class="kicker">A FEELING, NOT A FRAMEWORK</p>
-            <h2 id="playground-title">How much<br>should it <em>move?</em></h2>
-            <p>Give the dial a nudge. Watch a tiny world find its rhythm. The best motion knows when to hush.</p>
-            <label class="motion-control" for="motion-range"><span>BARELY A BREATH</span><input id="motion-range" type="range" min="0" max="100" value="54" aria-label="Adjust the intensity of the motion preview"><span>FULL WIGGLE</span></label>
-            <div class="motion-readout"><span class="readout-dot"></span><span id="motion-level">A LITTLE WIGGLE</span><output id="motion-value" for="motion-range">54%</output></div>
-            <span class="playground-hint">TRY IT. THERE IS NO WRONG AMOUNT.</span>
+    <!-- MARQUEE -->
+    <div class="marquee" aria-label="Works with HTML, CSS, vanilla JavaScript, GSAP, Lenis, WebGL, GLSL, Canvas, SVG, Three.js and the View Transitions API">
+      <div class="marquee__track" aria-hidden="true">
+        <div class="marquee__group"><span>HTML</span><i>✦</i><span>CSS</span><i>✦</i><span>Vanilla JS</span><i>✦</i><span>GSAP</span><i>✦</i><span>Lenis</span><i>✦</i><span>WebGL</span><i>✦</i><span>GLSL</span><i>✦</i><span>Canvas</span><i>✦</i><span>SVG</span><i>✦</i><span>Three.js</span><i>✦</i><span>View Transitions</span><i>✦</i><span>IntersectionObserver</span><i>✦</i></div>
+        <div class="marquee__group"><span>HTML</span><i>✦</i><span>CSS</span><i>✦</i><span>Vanilla JS</span><i>✦</i><span>GSAP</span><i>✦</i><span>Lenis</span><i>✦</i><span>WebGL</span><i>✦</i><span>GLSL</span><i>✦</i><span>Canvas</span><i>✦</i><span>SVG</span><i>✦</i><span>Three.js</span><i>✦</i><span>View Transitions</span><i>✦</i><span>IntersectionObserver</span><i>✦</i></div>
+      </div>
+    </div>
+
+    <!-- LIBRARY -->
+    <section class="section library" id="library" aria-labelledby="library-title">
+      <div class="wrap">
+        <p class="eyebrow" data-reveal><span class="count" data-count-of="library">00</span> studies in the field</p>
+        <div class="section-head" data-reveal>
+          <h2 id="library-title" class="h2">The field, <em>at a glance.</em></h2>
+          <div class="tabs" role="tablist" aria-label="Sort the library">
+            <button role="tab" class="tab is-active" aria-selected="true" data-tab="featured">Featured</button>
+            <button role="tab" class="tab" aria-selected="false" data-tab="popular">Popular</button>
+            <button role="tab" class="tab" aria-selected="false" data-tab="recent">Recent</button>
+            <span class="tabs__ink" aria-hidden="true"></span>
+          </div>
+        </div>
+        <div class="toolbar" data-reveal>
+          <div class="chips" role="group" aria-label="Filter by category" id="library-chips"></div>
+          <label class="search"><span aria-hidden="true">⌕</span><input id="library-search" type="search" placeholder="Find a feeling…" aria-label="Search the library"><kbd>/</kbd></label>
+        </div>
+        <div class="grid" id="library-grid" aria-live="polite"></div>
+        <div class="empty" id="library-empty" hidden><p>Nothing in the field matches that yet.</p><button type="button" class="pill pill--ghost pill--sm" id="library-clear">Clear filters</button></div>
+        <div class="section-foot" data-reveal>
+          <a class="link-arrow" href="#components">Browse the components <span aria-hidden="true">→</span></a>
+          <span class="mono muted">Every card opens a prompt and a snippet</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIVE LAB: the six original studies, running for real -->
+    <section class="section lab" id="lab" aria-labelledby="lab-title">
+      <div class="wrap">
+        <p class="eyebrow" data-reveal>Six studies, running live</p>
+        <div class="section-head" data-reveal>
+          <div>
+            <h2 id="lab-title" class="h2">Don't read about it. <em>Feel it.</em></h2>
+            <p class="lede">The six founding studies of the field, wired up for real. Scroll, hover, tap and drag: every panel here is the effect itself, not a picture of it.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Study 01: the tide turn (scroll-linked horizontal drift) -->
+      <div class="lab-tide" id="lab-01" aria-label="Study 01, the tide turn: this band drifts sideways as you scroll">
+        <div class="lab-tide__label wrap"><span class="mono">Study 01 / The tide turn</span><span class="mono muted">Scroll to drift →</span></div>
+        <div class="lab-tide__track" data-drift="-28">
+          <span class="lab-tide__word">Drift</span>
+          <img src="assets/thumbs/study-tide.webp" alt="" loading="lazy">
+          <span class="lab-tide__word"><em>with the</em></span>
+          <img src="assets/thumbs/study-path.webp" alt="" loading="lazy">
+          <span class="lab-tide__word">tide</span>
+          <img src="assets/thumbs/study-reveal.webp" alt="" loading="lazy">
+          <span class="lab-tide__word"><em>of the</em></span>
+          <img src="assets/thumbs/study-orbit.webp" alt="" loading="lazy">
+          <span class="lab-tide__word">page.</span>
+        </div>
+        <div class="lab-tide__track lab-tide__track--rev" data-drift="18" aria-hidden="true">
+          <span class="lab-tide__outline">Scroll cue ✦ horizontal drift ✦ scroll-linked ✦ Scroll cue ✦ horizontal drift ✦</span>
+        </div>
+      </div>
+
+      <div class="wrap lab__grid">
+        <!-- Study 02: orbit, gently (pointer parallax) -->
+        <article class="lab-panel lab-orbit" id="lab-02" data-orbit>
+          <div class="lab-orbit__scene" aria-hidden="true">
+            <img class="lab-orbit__bg" src="assets/thumbs/study-orbit.webp" alt="" loading="lazy">
+            <span class="lab-orbit__ring"></span>
+            <span class="lab-orbit__orb lab-orbit__orb--a" style="--depth:1.6"></span>
+            <span class="lab-orbit__orb lab-orbit__orb--b" style="--depth:-1.1"></span>
+            <span class="lab-orbit__orb lab-orbit__orb--c" style="--depth:2.4"></span>
+            <span class="lab-orbit__star" style="--depth:-2">✦</span>
+          </div>
+          <div class="lab-panel__meta"><span class="mono">Study 02 · 3D &amp; depth</span><h3>Orbit, <em>gently</em></h3><p>Move your pointer (or tilt a finger across). Each body drifts at its own depth.</p></div>
+        </article>
+
+        <!-- Study 03: soft-focus reveal (blur to clear on intersection) -->
+        <article class="lab-panel lab-reveal" id="lab-03">
+          <div class="lab-reveal__stage" data-blur-reveal>
+            <img src="assets/thumbs/study-reveal.webp" alt="A glass flower coming into focus" loading="lazy">
+            <p class="lab-reveal__line">A new chapter arrives <em>in focus.</em></p>
+          </div>
+          <div class="lab-panel__meta"><span class="mono">Study 03 · Reveal</span><h3>Soft-focus <em>reveal</em></h3><p>Blur to clear the moment it enters view. <button type="button" class="text-btn" data-replay="reveal">Replay ↺</button></p></div>
+        </article>
+
+        <!-- Study 04: letters in the wind (letter stagger) -->
+        <article class="lab-panel lab-letters" id="lab-04">
+          <div class="lab-letters__stage">
+            <p class="lab-letters__word" data-letters aria-label="Letters in the wind">Letters in the wind</p>
+          </div>
+          <div class="lab-panel__meta"><span class="mono">Study 04 · Type</span><h3>Letters <em>in the wind</em></h3><p>Each letter eases in on its own beat. Hover the words to send the breeze again.</p></div>
+        </article>
+
+        <!-- Study 05: the long way round (SVG path draw on scroll) -->
+        <article class="lab-panel lab-path" id="lab-05">
+          <div class="lab-path__stage">
+            <svg viewBox="0 0 600 340" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+              <path class="lab-path__ghost" d="M40 280 C 120 60, 230 40, 280 170 S 420 330, 470 160 S 540 40, 565 70"/>
+              <path class="lab-path__line" id="lab-path-line" d="M40 280 C 120 60, 230 40, 280 170 S 420 330, 470 160 S 540 40, 565 70"/>
+              <circle class="lab-path__start" cx="40" cy="280" r="9"/>
+              <circle class="lab-path__head" id="lab-path-head" cx="40" cy="280" r="11"/>
+            </svg>
+            <span class="lab-path__a">idea one</span><span class="lab-path__b">idea two</span>
+            <span class="lab-path__pct mono" id="lab-path-pct">0%</span>
+          </div>
+          <div class="lab-panel__meta"><span class="mono">Study 05 · Scroll</span><h3>The long <em>way round</em></h3><p>The line draws itself as you scroll past. Scroll back and it retraces.</p></div>
+        </article>
+
+        <!-- Study 06: a page with a pulse (hover + focus breath) -->
+        <article class="lab-panel lab-pulse" id="lab-06">
+          <div class="lab-pulse__stage">
+            <button type="button" class="pulse-card"><img src="assets/thumbs/study-pulse.webp" alt="" loading="lazy"><span>Hover or focus me</span></button>
+            <button type="button" class="pulse-card pulse-card--ink"><b>✦</b><span>Me too</span></button>
+          </div>
+          <div class="lab-panel__meta"><span class="mono">Study 06 · Micro</span><h3>A page with <em>a pulse</em></h3><p>A small breath on hover and focus, a signal that this thing is alive. Try Tab on a keyboard.</p></div>
+        </article>
+
+        <!-- Playground: the wiggle-energy dial -->
+        <article class="lab-panel lab-play" id="playground">
+          <div class="lab-play__copy">
+            <span class="mono">The little playground</span>
+            <h3 class="lab-play__title">How much should it <em>move?</em></h3>
+            <p>Give the dial a nudge and watch a tiny world find its rhythm. The best motion knows when to hush.</p>
+            <label class="motion-control" for="motion-range"><span class="mono">Barely a breath</span><input id="motion-range" type="range" min="0" max="100" value="54" aria-label="Adjust the intensity of the motion preview"><span class="mono">Full wiggle</span></label>
+            <div class="motion-readout"><span class="dot"></span><span class="mono" id="motion-level">A little wiggle</span><output id="motion-value" for="motion-range" class="mono">54%</output></div>
           </div>
           <div class="play-stage" id="playground-stage" aria-label="Interactive abstract motion preview">
-            <div class="stage-grain" aria-hidden="true"></div>
-            <span class="stage-label stage-label-top">MICRO-STUDY / 01</span>
+            <div class="stage-grid" aria-hidden="true"></div>
+            <span class="stage-label stage-label-top mono">Micro-study / 01</span>
             <div class="orbit orbit-a" aria-hidden="true"></div><div class="orbit orbit-b" aria-hidden="true"></div>
             <div class="stage-ribbon ribbon-one" aria-hidden="true"></div><div class="stage-ribbon ribbon-two" aria-hidden="true"></div>
             <div class="stage-orb orb-lime" aria-hidden="true"></div><div class="stage-orb orb-coral" aria-hidden="true"></div><div class="stage-orb orb-blue" aria-hidden="true"></div>
-            <span class="stage-stamp">MOVE<br>WITH<br>CARE<span>✳</span></span>
-            <span class="stage-label stage-label-bottom">DRAG THE DIAL ↗</span>
+            <span class="stage-stamp" aria-hidden="true">Move<br>with<br>care<b>✳</b></span>
+            <span class="stage-label stage-label-bottom mono">Drag the dial ↗</span>
           </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- COMPONENTS -->
+    <section class="section strip-section is-light" id="components" aria-labelledby="components-title">
+      <div class="wrap">
+        <p class="eyebrow" data-reveal><span class="count" data-count-of="components">00</span> live components</p>
+        <div class="section-head" data-reveal>
+          <div>
+            <h2 id="components-title" class="h2">One piece <em>at a time.</em></h2>
+            <p class="lede">Not every build needs a whole page. A button that pulls toward the cursor, a card that catches the light. Try them right here, then copy the prompt.</p>
+          </div>
+          <div class="strip-nav"><button type="button" class="round" data-strip-prev="components-strip" aria-label="Scroll components left">←</button><button type="button" class="round" data-strip-next="components-strip" aria-label="Scroll components right">→</button></div>
         </div>
-        <div class="playground-bottom"><span>EVERYTHING HERE IS A STARTING POINT</span><span class="scribble">not a prescription <b>↗</b></span></div>
+        <div class="chips" role="group" aria-label="Filter components" data-chips-for="components" data-reveal></div>
+      </div>
+      <div class="strip" id="components-strip" tabindex="0" aria-label="Components, scroll sideways"></div>
+      <div class="wrap"><div class="section-foot"><a class="link-arrow" href="#library" data-jump-filter="micro">Browse all micro-interactions <span aria-hidden="true">→</span></a></div></div>
+    </section>
+
+    <!-- SHADERS -->
+    <section class="section strip-section strip-section--dark" id="shaders" aria-labelledby="shaders-title">
+      <div class="wrap">
+        <p class="eyebrow" data-reveal><span class="count" data-count-of="shaders">00</span> GPU shaders, running live</p>
+        <div class="section-head" data-reveal>
+          <div>
+            <h2 id="shaders-title" class="h2">Motion behind <em>everything.</em></h2>
+            <p class="lede">Animated backgrounds drawn on the GPU in real time: mesh gradients, swirls, halftone tides and aurora. Open one to grab the fragment shader.</p>
+          </div>
+          <div class="strip-nav"><button type="button" class="round" data-strip-prev="shaders-strip" aria-label="Scroll shaders left">←</button><button type="button" class="round" data-strip-next="shaders-strip" aria-label="Scroll shaders right">→</button></div>
+        </div>
+        <div class="chips" role="group" aria-label="Filter shaders" data-chips-for="shaders" data-reveal></div>
+      </div>
+      <div class="strip" id="shaders-strip" tabindex="0" aria-label="Shaders, scroll sideways"></div>
+      <div class="wrap"><div class="section-foot"><a class="link-arrow" href="#library" data-jump-filter="shader">Browse all shader studies <span aria-hidden="true">→</span></a></div></div>
+    </section>
+
+    <!-- SECTIONS -->
+    <section class="section strip-section" id="sections" aria-labelledby="sections-title">
+      <div class="wrap">
+        <p class="eyebrow" data-reveal><span class="count" data-count-of="sections">00</span> section blueprints</p>
+        <div class="section-head" data-reveal>
+          <div>
+            <h2 id="sections-title" class="h2">Build a page <em>a band at a time.</em></h2>
+            <p class="lede">Heroes, pricing, bento grids and footers that already know how to move. Each blueprint is a prompt you can drop into the page you have.</p>
+          </div>
+          <div class="strip-nav"><button type="button" class="round" data-strip-prev="sections-strip" aria-label="Scroll sections left">←</button><button type="button" class="round" data-strip-next="sections-strip" aria-label="Scroll sections right">→</button></div>
+        </div>
+        <div class="chips" role="group" aria-label="Filter sections" data-chips-for="sections" data-reveal></div>
+      </div>
+      <div class="strip" id="sections-strip" tabindex="0" aria-label="Section blueprints, scroll sideways"></div>
+    </section>
+
+    <!-- UI SCREENS -->
+    <section class="section strip-section" id="screens" aria-labelledby="screens-title">
+      <div class="wrap">
+        <p class="eyebrow" data-reveal><span class="count" data-count-of="screens">00</span> UI screens</p>
+        <div class="section-head" data-reveal>
+          <div>
+            <h2 id="screens-title" class="h2">The screen <em>after the scroll.</em></h2>
+            <p class="lede">Dashboards, wallets and players, the places people live once they sign up. Motion here is quieter: it confirms, it guides, it never shouts.</p>
+          </div>
+          <div class="strip-nav"><button type="button" class="round" data-strip-prev="screens-strip" aria-label="Scroll screens left">←</button><button type="button" class="round" data-strip-next="screens-strip" aria-label="Scroll screens right">→</button></div>
+        </div>
+        <div class="chips" role="group" aria-label="Filter UI screens" data-chips-for="screens" data-reveal></div>
+      </div>
+      <div class="strip" id="screens-strip" tabindex="0" aria-label="UI screens, scroll sideways"></div>
+    </section>
+
+    <!-- WORKFLOW -->
+    <section class="section workflow is-light" id="workflow" aria-labelledby="workflow-title">
+      <div class="wrap workflow__grid">
+        <div class="workflow__aside">
+          <p class="eyebrow">The workflow <span class="mono" id="workflow-step">01 / 03</span></p>
+          <h2 id="workflow-title" class="h2 h2--xl">Pick. Paste. <em>Play.</em></h2>
+          <p class="lede">Three steps from a blank tab to a page that moves with intent. No boilerplate, no framework to learn first.</p>
+          <div class="workflow__rail" aria-hidden="true"><span id="workflow-fill"></span></div>
+        </div>
+        <ol class="workflow__steps">
+          <li class="step" data-step="1">
+            <span class="step__num" aria-hidden="true">01</span>
+            <div><h3>Pick a feeling</h3><p>Filter the field by what the moment needs: a drift, a reveal, a pulse, a background that breathes. Preview everything live before you commit.</p></div>
+          </li>
+          <li class="step" data-step="2">
+            <span class="step__num" aria-hidden="true">02</span>
+            <div><h3>Paste the prompt</h3><p>Every card carries a structured prompt for Claude, Cursor, v0 or Lovable, plus a plain snippet if you'd rather wire it yourself.</p></div>
+          </li>
+          <li class="step" data-step="3">
+            <span class="step__num" aria-hidden="true">03</span>
+            <div><h3>Ship with restraint</h3><p>Tune the easing, test with reduced motion switched on, and deploy. The best motion knows when to hush.</p></div>
+          </li>
+        </ol>
       </div>
     </section>
 
-    <section class="fieldnotes section-wrap" id="fieldnotes" aria-labelledby="fieldnotes-title">
-      <div class="section-topline"><span>03 / NOTES FROM THE FIELD</span><span>MAKE IT MEAN SOMETHING</span></div>
-      <div class="notes-intro"><div><p class="kicker">A NOTE BEFORE YOU GO</p><h2 id="fieldnotes-title">Move with<br>a <em>reason.</em></h2></div><p>Animation isn't confetti. It's a little bit of direction, a moment of anticipation, a way to help a story land.</p></div>
-      <div class="notes-grid">
-        <article class="note-card note-one"><div class="note-card-top"><span>FIELD NOTE 01</span><span class="note-doodle" aria-hidden="true">↝</span></div><h3>Give it a<br>job to do.</h3><p>Guide the eye. Mark a change. Reward curiosity. If it doesn't do one of those, let the page breathe.</p><span class="note-footer">INTENTION BEFORE EASING <b>01</b></span></article>
-        <article class="note-card note-two"><div class="note-card-top"><span>FIELD NOTE 02</span><span class="note-doodle" aria-hidden="true">✳</span></div><h3>Leave room<br>for the human.</h3><p>Honor reduced-motion settings. Keep the message clear. Make every flourish feel like an invitation.</p><span class="note-footer">ACCESS IS PART OF THE ART <b>02</b></span></article>
-        <article class="note-card note-three"><div class="note-card-top"><span>FIELD NOTE 03</span><span class="note-doodle" aria-hidden="true">↗</span></div><h3>Let the<br>quiet land.</h3><p>A pause can be a transition, too. Give each moment just enough space to be noticed.</p><span class="note-footer">A LITTLE SPACE GOES FAR <b>03</b></span></article>
+    <!-- STATS -->
+    <section class="stats" aria-label="Motion Field in numbers">
+      <div class="wrap stats__grid">
+        <div class="stat" data-reveal><b data-countup="library">0</b><span>Studies in the library</span></div>
+        <div class="stat" data-reveal style="--d:1"><b data-countup="components">0</b><span>Live components</span></div>
+        <div class="stat" data-reveal style="--d:2"><b data-countup="shaders">0</b><span>GPU shaders</span></div>
+        <div class="stat" data-reveal style="--d:3"><b data-countup="blueprints">0</b><span>Section &amp; UI blueprints</span></div>
       </div>
     </section>
 
-    <section class="closing-band">
-      <div class="closing-orbit" aria-hidden="true"><span>✳</span></div>
-      <div class="closing-copy"><p class="kicker">THAT'S THE WHOLE IDEA</p><h2>Keep the page<br><em>in motion.</em></h2><p>Make it move. Make it matter. Make it yours.</p></div>
-      <a href="#top" class="button button-dark">Back to the beginning <span aria-hidden="true">↑</span></a>
-      <span class="closing-aside">MOTION FIELD<br>ISSUE 01 / 2026</span>
+    <!-- FAQ -->
+    <section class="section faq" id="faq" aria-labelledby="faq-title">
+      <div class="wrap faq__grid">
+        <div data-reveal>
+          <p class="eyebrow">Questions</p>
+          <h2 id="faq-title" class="h2">Before you <em>wander in.</em></h2>
+        </div>
+        <div class="faq__list" data-reveal>
+          <details><summary>Is Motion Field free to use?</summary><p>Yes. Every study, prompt and snippet here is free to read, copy and remix in personal and client work.</p></details>
+          <details><summary>Do I need React, GSAP or a build step?</summary><p>No. The snippets are plain HTML, CSS and JavaScript. Where a library like GSAP or Lenis would help, the prompt says so, and you can ask your AI to use it.</p></details>
+          <details><summary>Which AI tools do the prompts work with?</summary><p>They are written to be specific and structured, so they work well in Claude, Cursor, v0, Lovable and similar tools. Paste, then adjust the copy and colours to your brand.</p></details>
+          <details><summary>What about accessibility?</summary><p>Every prompt asks for a prefers-reduced-motion fallback, keyboard focus states and readable contrast. This site follows the same rules: switch reduced motion on and it calms right down.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta" id="join" aria-labelledby="cta-title">
+      <canvas class="cta__shader shader-canvas" data-shader="mesh" data-palette="#0b0c0a,#2b3cbf,#d5ff3f" aria-hidden="true"></canvas>
+      <div class="cta__veil" aria-hidden="true"></div>
+      <div class="wrap cta__inner" data-reveal>
+        <p class="eyebrow eyebrow--light">Start moving today</p>
+        <h2 id="cta-title" class="cta__title">Catch <em>the drift.</em></h2>
+        <p class="cta__sub">One short note when a new issue of studies lands. Nothing else, ever.</p>
+        <form class="newsletter" id="newsletter" novalidate>
+          <label class="sr-only" for="newsletter-email">Email address</label>
+          <input id="newsletter-email" type="email" name="email" placeholder="you@studio.com" autocomplete="email" required>
+          <button class="pill pill--lime" type="submit"><span>Subscribe</span> <i aria-hidden="true">→</i></button>
+          <p class="newsletter__msg" id="newsletter-msg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
     </section>
   </main>
 
-  <footer class="site-footer"><a class="brand footer-brand" href="#top"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="brand-name">MOTION<span>FIELD</span><small>ISSUE 01 / 2026</small></span></a><span>A FIELD GUIDE FOR CURIOUS BUILDERS.</span><span>MADE WITH A LITTLE EXTRA FEELING <b>© 2026</b></span></footer>
+  <footer class="footer">
+    <div class="wrap footer__top">
+      <div class="footer__brand">
+        <a class="brand" href="#main"><span class="brand__mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="brand__name">Motion<b>Field</b></span></a>
+        <p>A field guide of web motion studies and prompts. Copy, paste, make it yours.</p>
+        <div class="socials">
+          <a href="https://github.com/swapagrawal14" target="_blank" rel="noopener" aria-label="GitHub">GH</a>
+          <a href="https://www.linkedin.com/in/swapnil-agrawal-109a3321b" target="_blank" rel="noopener" aria-label="LinkedIn">in</a>
+          <a href="https://x.com/ai_artist1411" target="_blank" rel="noopener" aria-label="X">X</a>
+        </div>
+      </div>
+      <div class="footer__col"><h4>Library</h4><a href="#library">All studies</a><a href="#library" data-jump-filter="scroll">Scroll cues</a><a href="#library" data-jump-filter="reveal">Reveals</a><a href="#library" data-jump-filter="type">Type play</a></div>
+      <div class="footer__col"><h4>Explore</h4><a href="#components">Components</a><a href="#shaders">Shaders</a><a href="#sections">Sections</a><a href="#screens">UI screens</a></div>
+      <div class="footer__col"><h4>Field notes</h4><a href="#lab">Live lab</a><a href="#playground">Playground</a><a href="#workflow">Workflow</a><a href="#faq">FAQ</a><a href="#join">Newsletter</a><a href="https://github.com/swapagrawal14/Motion-field" target="_blank" rel="noopener">Source on GitHub</a></div>
+    </div>
+    <div class="footer__word" aria-hidden="true"><span data-speed="-0.08">Motion<em>Field</em></span></div>
+    <div class="wrap footer__bottom"><span>© 2026 Motion Field. Crafted by Swapnil Agrawal (BDS intern).</span><span>Made for people who care how things move.</span></div>
+  </footer>
 
-  <dialog class="detail-modal" id="detail-modal" aria-labelledby="modal-title">
-    <div class="modal-shell">
-      <button class="modal-close" type="button" aria-label="Close study">×</button>
-      <div class="modal-image-wrap"><img id="modal-image" src="assets/hero-kinetic-still-life.webp" alt=""><span id="modal-number" class="modal-number"></span></div>
-      <div class="modal-content"><p class="kicker" id="modal-kicker"></p><h2 id="modal-title"></h2><p id="modal-description" class="modal-description"></p><div class="modal-meta" id="modal-meta"></div><div class="code-heading"><span>THE STARTING POINT</span><button id="copy-code" type="button">Copy snippet <span aria-hidden="true">↗</span></button></div><pre class="code-block"><code id="modal-code"></code></pre><p class="modal-hint">A tiny plain-JS sketch to remix. Add your own timing and always honor reduced-motion preferences.</p></div>
+  <dialog class="modal" id="modal" aria-labelledby="modal-title" data-lenis-prevent>
+    <div class="modal__shell">
+      <button class="modal__close" type="button" aria-label="Close">×</button>
+      <div class="modal__preview" id="modal-preview"></div>
+      <div class="modal__body">
+        <p class="eyebrow" id="modal-kicker"></p>
+        <h2 id="modal-title" class="modal__title"></h2>
+        <p id="modal-desc" class="modal__desc"></p>
+        <div class="modal__tags" id="modal-tags"></div>
+        <div class="modal__tabs" role="tablist" aria-label="Prompt or code">
+          <button role="tab" class="tab is-active" aria-selected="true" data-modal-tab="prompt">AI prompt</button>
+          <button role="tab" class="tab" aria-selected="false" data-modal-tab="code">Code</button>
+        </div>
+        <pre class="code"><code id="modal-code"></code></pre>
+        <div class="modal__actions">
+          <button class="pill pill--lime" type="button" id="modal-copy"><span>Copy prompt</span> <i aria-hidden="true">⧉</i></button>
+          <a class="link-arrow modal__live" id="modal-live" href="#lab" hidden>See it running live <span aria-hidden="true">↓</span></a>
+          <span class="mono muted">Honors prefers-reduced-motion</span>
+        </div>
+      </div>
     </div>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <canvas id="gl-canvas" width="640" height="640" hidden></canvas>
 </body>
 </html>
