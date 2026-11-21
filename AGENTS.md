@@ -15,7 +15,7 @@ generic template with fade-ins sprinkled on.
 
 | Need | Why | Check |
 |---|---|---|
-| A browser-capable shell: `python3` + `pip install playwright && playwright install chromium` (or Node + `npx playwright`) | screenshots and QA gates (`tools/qa.py`) | `python3 tools/qa.py --help` |
+| A browser-capable shell: `python3` + `pip install playwright pillow && python3 -m playwright install chromium` (on a bare Linux box also `sudo python3 -m playwright install-deps chromium`) | screenshots and QA gates (`tools/qa.py`) | `python3 tools/qa.py --help` |
 | A static server | preview | `python3 -m http.server 8080` |
 | An **image generator** that takes **reference images** (first ref = style to copy) | hero art, section art, textures, product shots in ONE consistent style | generate one test image first |
 | `cwebp` or Pillow / ImageMagick | convert every raster to WebP/AVIF under budget | `cwebp -version` or `python3 -c "import PIL"` |
@@ -61,9 +61,12 @@ is worse than three check-ins.
 
 ## 4. QA gates (every page, before the human sees it)
 
-Run `python3 tools/qa.py http://localhost:8080/ --out qa/` (screens at 1440×900 and 390×844, at 0 / 25 / 50 /
-75 / 100 % scroll, plus a reduced-motion pass and a contact sheet). Then **open the contact sheet and look at it.**
-Fail a gate → fix it, don't hide it.
+Run `python3 tools/qa.py http://localhost:8080/ --out qa/` (or pass a local folder/file, e.g.
+`python3 tools/qa.py templates/landing/`, and it serves it for you). It takes screens at 1440×900 and 390×844 at
+0 / 25 / 50 / 75 / 100 % scroll, runs a reduced-motion pass, builds `qa/contact-sheet.png`, and writes
+`qa/report.md` + `qa/report.json` (console errors, failed requests, overflow culprits, LCP on a throttled mobile
+load, page weight). Exit code 1 = a gate failed. Then **open the contact sheet and look at it.**
+Fail a gate → fix it, don't hide it. (`--ignore-host <cdn>` only for hosts your sandbox blocks, never to hide real 404s.)
 
 **A. Visual.** Nothing clipped, overlapping or cut mid-word; headings don't orphan one word; images not
 stretched; sections look designed at both widths, not just stacked. Compare side by side with the reference
