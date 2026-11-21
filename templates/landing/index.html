@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- SWAP: page title + description -->
+  <title>Product Name — One-line promise (placeholder)</title>
+  <meta name="description" content="Placeholder description: one sentence about what the product does and who it is for.">
+  <meta name="theme-color" content="#060a1f">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23060a1f'/%3E%3Cpath d='M6 20c4-8 8 8 12 0s6-6 8-4' stroke='%232de2ff' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    /* Motion gate: hero entrance styles only apply when motion is allowed and JS runs.
+       Fallback removes the gate if the animation libraries never load. */
+    (function () {
+      var d = document.documentElement;
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        d.classList.add('motion');
+        setTimeout(function () { if (!window.gsap) d.classList.remove('motion'); }, 2500);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" data-nav>
+    <a class="nav__brand" href="#top" aria-label="Product Name home">
+      <span class="nav__mark" aria-hidden="true"></span>
+      <span data-swap="brand">Product&nbsp;Name</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#features">Features</a>
+      <a href="#showcase">Showcase</a>
+      <a href="#process">How it works</a>
+    </nav>
+    <a class="btn btn--ghost nav__cta" href="#cta" data-swap="nav.cta">Get started</a>
+  </header>
+
+  <main id="main">
+    <!-- ============ 1. PINNED HERO (recipes: pinned-hero-shrink, letter-stagger; procedural tide canvas) ============ -->
+    <section class="hero" id="top" data-hero>
+      <div class="hero__stage" data-hero-stage>
+        <canvas class="hero__canvas" data-tide aria-hidden="true"></canvas>
+        <div class="hero__glow" aria-hidden="true"></div>
+        <div class="hero__inner" data-hero-inner>
+          <p class="eyebrow"><span class="dot" aria-hidden="true"></span><span data-swap="hero.eyebrow">Placeholder · Launching soon</span></p>
+          <h1 class="hero__title" data-split data-swap="hero.title">Say what you make in one bold line.</h1>
+          <p class="hero__lede" data-hero-fade data-swap="hero.lede">Placeholder lede. Two short sentences on the problem you solve and who it is for. Replace this before launch.</p>
+          <div class="hero__actions" data-hero-fade>
+            <a class="btn btn--primary" href="#cta" data-swap="hero.cta"><span>Primary action</span><i aria-hidden="true">→</i></a>
+            <a class="btn btn--ghost" href="#showcase" data-swap="hero.cta2">See it move</a>
+          </div>
+        </div>
+        <!-- Procedural product mock (desktop ≥1200px). SWAP: replace with a real screenshot <img> or keep as decoration. -->
+        <div class="hero__device" data-device aria-hidden="true">
+          <div class="dev dev--back"><i></i><i></i><i></i></div>
+          <div class="dev dev--front">
+            <div class="dev__bar"><span></span><span></span><span></span><b></b></div>
+            <svg class="dev__chart" viewBox="0 0 300 120" preserveAspectRatio="none">
+              <defs><linearGradient id="devfill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#2de2ff" stop-opacity=".35"/><stop offset="1" stop-color="#2de2ff" stop-opacity="0"/></linearGradient></defs>
+              <path d="M0 92 C30 86 45 60 75 64 S120 96 150 70 S200 22 230 34 S275 52 300 18 V120 H0Z" fill="url(#devfill)"/>
+              <path d="M0 92 C30 86 45 60 75 64 S120 96 150 70 S200 22 230 34 S275 52 300 18" fill="none" stroke="#2de2ff" stroke-width="2.5"/>
+            </svg>
+            <div class="dev__rows"><i></i><i></i><i></i></div>
+            <div class="dev__pills"><span class="on"></span><span></span><span></span></div>
+          </div>
+        </div>
+        <div class="hero__cue" data-hero-cue aria-hidden="true"><span></span>Scroll</div>
+      </div>
+    </section>
+
+    <!-- ============ 2. MARQUEE (recipe: marquee) ============ -->
+    <section class="marquee" aria-label="Product keywords (placeholder)">
+      <div class="marquee__row" data-marquee>
+        <div class="marquee__track">
+          <span data-swap="marquee.1">Keyword one</span><b aria-hidden="true">✦</b>
+          <span class="o" data-swap="marquee.2">Keyword two</span><b aria-hidden="true">✦</b>
+          <span data-swap="marquee.3">Keyword three</span><b aria-hidden="true">✦</b>
+          <span class="o" data-swap="marquee.4">Keyword four</span><b aria-hidden="true">✦</b>
+        </div>
+      </div>
+      <div class="marquee__row marquee__row--rev" data-marquee aria-hidden="true">
+        <div class="marquee__track">
+          <span class="o">Swap these words</span><b>✦</b>
+          <span>Placeholder copy</span><b>✦</b>
+          <span class="o">Your real phrases</span><b>✦</b>
+          <span>Short &amp; punchy</span><b>✦</b>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 3. FEATURES (recipes: blur-reveal, hover-pulse-style pointer glow) ============ -->
+    <section class="section features" id="features">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="label" data-reveal>01 — Features</p>
+          <h2 class="h2" data-reveal data-swap="features.title">Three reasons, said plainly.</h2>
+          <p class="section__sub" data-reveal data-swap="features.sub">Placeholder intro. Keep it to one sentence that frames the cards below.</p>
+        </header>
+        <div class="features__grid" data-stagger>
+          <article class="fcard" data-glow>
+            <div class="fcard__icon fcard__icon--rings" aria-hidden="true"></div>
+            <p class="fcard__num">01</p>
+            <h3 data-swap="feature.1.title">Feature name</h3>
+            <p data-swap="feature.1.body">Placeholder benefit. One or two sentences about what this does for the reader, not how it is built.</p>
+          </article>
+          <article class="fcard" data-glow>
+            <div class="fcard__icon fcard__icon--bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <p class="fcard__num">02</p>
+            <h3 data-swap="feature.2.title">Feature name</h3>
+            <p data-swap="feature.2.body">Placeholder benefit. Lead with the outcome. Swap in the real claim and check it with the owner.</p>
+          </article>
+          <article class="fcard" data-glow>
+            <div class="fcard__icon fcard__icon--grid" aria-hidden="true"></div>
+            <p class="fcard__num">03</p>
+            <h3 data-swap="feature.3.title">Feature name</h3>
+            <p data-swap="feature.3.body">Placeholder benefit. Never invent numbers or quotes here; leave this generic until real copy arrives.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 4. TILTED 3D CARD WALL (recipes: card-wall-3d, card-tilt) ============ -->
+    <section class="section showcase" id="showcase">
+      <div class="wrap">
+        <header class="section__head section__head--center">
+          <p class="label" data-reveal>02 — Showcase</p>
+          <h2 class="h2" data-reveal data-swap="showcase.title">Show the product, not a promise.</h2>
+          <p class="section__sub" data-reveal data-swap="showcase.sub">Placeholder. Each tile below is a procedural screen; swap in real screenshots (WebP, ≤150 KB) when you have them.</p>
+        </header>
+      </div>
+      <div class="wall" data-wall aria-hidden="true">
+        <div class="wall__plane" data-wall-plane>
+          <div class="wall__col" data-col="-1">
+            <div class="tile t-chart"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="tile t-orb"></div>
+            <div class="tile t-list"><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="wall__col" data-col="1">
+            <div class="tile t-wave"></div>
+            <div class="tile t-ui"><b></b><i></i><i></i><em></em></div>
+            <div class="tile t-rings"></div>
+          </div>
+          <div class="wall__col" data-col="-1">
+            <div class="tile t-grid"></div>
+            <div class="tile t-chart t-chart--alt"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="tile t-orb t-orb--alt"></div>
+          </div>
+          <div class="wall__col" data-col="1">
+            <div class="tile t-list"><i></i><i></i><i></i><i></i></div>
+            <div class="tile t-wave t-wave--alt"></div>
+            <div class="tile t-ui"><b></b><i></i><i></i><em></em></div>
+          </div>
+          <div class="wall__col" data-col="-1">
+            <div class="tile t-rings"></div>
+            <div class="tile t-grid"></div>
+            <div class="tile t-chart"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 5. PROCESS (scrubbed progress rail; swap for svg-path-draw if you want a drawn line) ============ -->
+    <section class="section process" id="process">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="label" data-reveal>03 — How it works</p>
+          <h2 class="h2" data-reveal data-swap="process.title">From zero to live in three steps.</h2>
+        </header>
+        <div class="steps" data-steps>
+          <div class="steps__rail" aria-hidden="true"><span data-rail></span></div>
+          <ol class="steps__list" data-stagger>
+            <li class="step"><span class="step__big" aria-hidden="true">01</span><span class="step__n">Step 01</span><h3 data-swap="step.1.title">First step</h3><p data-swap="step.1.body">Placeholder. What the reader does first, in a single sentence.</p></li>
+            <li class="step"><span class="step__big" aria-hidden="true">02</span><span class="step__n">Step 02</span><h3 data-swap="step.2.title">Second step</h3><p data-swap="step.2.body">Placeholder. What happens next and why it is easy.</p></li>
+            <li class="step"><span class="step__big" aria-hidden="true">03</span><span class="step__n">Step 03</span><h3 data-swap="step.3.title">Third step</h3><p data-swap="step.3.body">Placeholder. The result they get at the end.</p></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 6. CTA (recipe: magnetic-button) ============ -->
+    <section class="section cta" id="cta">
+      <div class="cta__orb" aria-hidden="true"></div>
+      <div class="wrap cta__inner">
+        <p class="label" data-reveal>04 — Get started</p>
+        <h2 class="cta__title" data-reveal data-swap="cta.title">Ready when you&nbsp;are.</h2>
+        <p class="section__sub" data-reveal data-swap="cta.sub">Placeholder. One line that removes the last doubt: price, trial, or what happens after the click.</p>
+        <div class="cta__actions" data-reveal>
+          <a class="magnetic" href="#top" data-magnetic data-swap="cta.button">
+            <span class="magnetic__label" data-magnetic-label>Primary action</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER (big wordmark with slow parallax) ============ -->
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer__top">
+        <div>
+          <a class="nav__brand" href="#top"><span class="nav__mark" aria-hidden="true"></span><span data-swap="brand">Product&nbsp;Name</span></a>
+          <p class="footer__note" data-swap="footer.note">Placeholder tagline for the footer.</p>
+        </div>
+        <nav class="footer__links" aria-label="Footer">
+          <a href="#features">Features</a>
+          <a href="#showcase">Showcase</a>
+          <a href="#process">How it works</a>
+          <a href="#cta">Contact</a>
+        </nav>
+      </div>
+      <p class="footer__word" data-wordmark aria-hidden="true" data-swap="brand.wordmark">Product</p>
+      <div class="footer__bottom">
+        <p>© <span data-year>2026</span> <span data-swap="brand">Product Name</span>. Placeholder legal line.</p>
+        <p class="credit">Designed &amp; built by Swapnil Agrawal (BDS intern)</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
+  <script src="js/main.js" defer></script>
+</body>
+</html>
