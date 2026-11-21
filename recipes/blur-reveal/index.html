@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blur reveal · Motion Field recipe</title>
+<meta name="description" content="Blocks resolve from blurred to sharp the first time they enter view.">
+<meta name="theme-color" content="#070d1a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23070d1a'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%233fdcff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<script>(() => {
+  const root = document.documentElement, mq = matchMedia("(prefers-reduced-motion: reduce)");
+  let forced = null;
+  const apply = () => {
+    const on = forced === null ? mq.matches : forced;
+    root.classList.toggle("reduce-motion", on);
+    document.dispatchEvent(new CustomEvent("motionchange", { detail: { reduced: on } }));
+  };
+  mq.addEventListener ? mq.addEventListener("change", apply) : mq.addListener(apply);
+  window.MotionPref = { set(v) { forced = v; apply(); }, get reduced() { return root.classList.contains("reduce-motion"); } };
+  root.classList.toggle("reduce-motion", mq.matches);
+})();</script>
+<style>:root {
+  --bg: #070d1a; --bg-2: #0a1324; --surface: #0e1830; --surface-2: #132143;
+  --line: rgba(150, 180, 235, .14); --line-2: rgba(150, 180, 235, .26);
+  --ink: #e8eff9; --muted: #95a3bf; --faint: #5f6d8a;
+  --accent: #3fdcff; --accent-2: #8fefff; --accent-ink: #03141d;
+  --accent-glow: rgba(63, 220, 255, .35);
+  --ease-out: cubic-bezier(.16, 1, .3, 1); --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --sans: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --pad: clamp(20px, 4vw, 48px); --max: 1240px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { color-scheme: dark; background: var(--bg); -webkit-text-size-adjust: 100%; }
+body { min-height: 100vh; font: 16px/1.6 var(--sans); color: var(--ink); background:
+  radial-gradient(1100px 620px at 85% -8%, rgba(63, 220, 255, .09), transparent 62%),
+  radial-gradient(900px 540px at -10% 30%, rgba(70, 96, 255, .07), transparent 60%), var(--bg);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+img, svg, canvas { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--pad); }
+
+/* top bar */
+.mf-top { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px var(--pad); background: rgba(7, 13, 26, .72); backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%); border-bottom: 1px solid var(--line); }
+.mf-brand { display: flex; align-items: center; gap: 10px; color: var(--muted); text-decoration: none; min-width: 0; }
+.mf-brand b { color: var(--ink); font-weight: 500; }
+.mf-brand span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mf-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(63,220,255,.12), 0 0 14px var(--accent-glow); }
+.mf-toggle { flex: none; display: inline-flex; align-items: center; gap: 10px; padding: 7px 8px 7px 14px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line); cursor: pointer; color: var(--muted); transition: border-color .3s, color .3s; }
+.mf-toggle:hover { border-color: var(--line-2); color: var(--ink); }
+.mf-toggle__track { position: relative; width: 34px; height: 20px; border-radius: 999px; background: #1a2746; transition: background .3s; }
+.mf-toggle__track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); transition: transform .35s var(--ease-out), background .3s; }
+.mf-toggle[aria-pressed="true"] { color: var(--ink); }
+.mf-toggle[aria-pressed="true"] .mf-toggle__track { background: rgba(63,220,255,.28); }
+.mf-toggle[aria-pressed="true"] .mf-toggle__track::after { transform: translateX(14px); background: var(--accent); }
+
+/* intro */
+.mf-intro { padding-block: clamp(56px, 9vw, 120px) clamp(32px, 5vw, 56px); }
+.mf-eyebrow { display: inline-flex; align-items: center; gap: 10px; color: var(--accent); }
+.mf-eyebrow::before { content: ""; width: 22px; height: 1px; background: currentColor; }
+.mf-h1 { margin-top: 18px; max-width: 15ch; font-size: clamp(42px, 6.2vw, 88px); line-height: .98; font-weight: 600; letter-spacing: -.045em; text-wrap: balance; }
+.mf-h1 .soft { display: block; color: var(--muted); font-weight: 500; }
+.mf-lede { margin-top: 22px; max-width: 56ch; color: var(--muted); font-size: clamp(16px, 1.4vw, 19px); }
+.mf-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.mf-pill { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font: 500 11.5px/1.4 var(--mono); letter-spacing: .06em; }
+
+/* notes */
+.mf-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding-block: clamp(56px, 8vw, 110px) 32px; }
+.mf-note { padding: 24px; border-radius: 20px; background: linear-gradient(180deg, rgba(19,33,67,.55), rgba(14,24,48,.4)); border: 1px solid var(--line); }
+.mf-note h2 { margin: 12px 0 8px; font-size: 19px; letter-spacing: -.02em; font-weight: 600; }
+.mf-note p, .mf-note li { color: var(--muted); font-size: 14.5px; }
+.mf-note ul { padding-left: 18px; display: grid; gap: 4px; }
+.mf-note code { font-family: var(--mono); font-size: 12.5px; color: var(--accent-2); }
+.mf-note .mono { color: var(--faint); }
+.mf-foot { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 28px 40px; color: var(--faint); border-top: 1px solid var(--line); }
+@media (max-width: 860px) { .mf-notes { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .mf-toggle__label { display: none; } .mf-brand .mf-hide-sm { display: none; } }
+
+/* ===== recipe: blur-reveal ===== */
+.br-list { display: grid; gap: clamp(72px, 12vw, 160px); padding-block: clamp(32px, 6vw, 80px); }
+.br-chapter { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(28px, 5vw, 72px); align-items: center; }
+.br-chapter:nth-child(even) { grid-template-columns: 1fr 1.15fr; }
+.br-chapter:nth-child(even) .br-art { order: 2; }
+.br-art { position: relative; aspect-ratio: 5 / 4; border-radius: 26px; overflow: hidden; box-shadow: 0 0 0 1px var(--line), 0 40px 80px -40px rgba(0,0,0,.9); }
+.br-art span { position: absolute; inset: 0; }
+.art-dawn { background: linear-gradient(180deg, #0b1a3f 0%, #1e3f8a 38%, #4cc9f0 70%, #d9fbff 100%); }
+.art-dawn span { background: linear-gradient(180deg, transparent 72%, #071229 72.4%, #0b1d44 100%),
+  radial-gradient(14% 17.5% at 50% 72%, #fff 0%, #f2fdff 45%, rgba(220,250,255,.5) 62%, transparent 100%),
+  radial-gradient(45% 30% at 50% 72%, rgba(255,255,255,.35), transparent 70%); }
+.art-dawn span::after { content: ""; position: absolute; inset: 72% 0 0; background: repeating-linear-gradient(180deg, rgba(143,239,255,.35) 0 2px, transparent 2px 10px); -webkit-mask: radial-gradient(40% 70% at 50% 0%, #000, transparent); mask: radial-gradient(40% 70% at 50% 0%, #000, transparent); }
+.art-tide { background: radial-gradient(90% 80% at 80% 10%, #2a7fd6, #0c2352 50%, #060d1d); }
+.art-tide span { background: repeating-radial-gradient(circle at 20% 110%, rgba(63,220,255,.0) 0 18px, rgba(63,220,255,.55) 19px 20px, rgba(63,220,255,0) 21px 38px); -webkit-mask: radial-gradient(80% 90% at 20% 100%, #000 30%, transparent 75%); mask: radial-gradient(80% 90% at 20% 100%, #000 30%, transparent 75%); }
+.art-grid { background: linear-gradient(160deg, #101d3d, #070d1a); }
+.art-grid span { background: radial-gradient(circle at 62% 42%, #e6fcff 0 6%, #3fdcff 14%, rgba(63,220,255,.0) 34%),
+  linear-gradient(rgba(150,180,235,.14) 1px, transparent 1px) 0 0 / 32px 32px, linear-gradient(90deg, rgba(150,180,235,.14) 1px, transparent 1px) 0 0 / 32px 32px; }
+.br-num { color: var(--accent); }
+.br-title { margin: 14px 0 14px; font-size: clamp(34px, 4.4vw, 64px); line-height: 1; letter-spacing: -.045em; font-weight: 600; text-wrap: balance; }
+.br-title span { color: var(--muted); font-weight: 400; }
+.br-text { color: var(--muted); max-width: 42ch; font-size: 17px; }
+.br-specs { padding-block: clamp(40px, 8vw, 100px) 0; }
+.br-specs__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; color: var(--faint); }
+.br-replay { padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); cursor: pointer; transition: border-color .3s, background .3s; }
+.br-replay:hover { border-color: var(--accent); background: var(--surface-2); }
+.br-grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.br-cell { padding: 20px 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 10px; }
+.br-cell .mono { color: var(--faint); font-size: 11px; }
+.br-cell b { font-size: 22px; font-weight: 600; letter-spacing: -.03em; }
+
+/* --- the reveal itself --- */
+[data-reveal] .br-art span, [data-reveal] .br-art { transition: filter 1.4s var(--ease-out), transform 1.6s var(--ease-out), opacity 1.2s ease; }
+.js-reveal [data-reveal]:not(.is-in) .br-art { filter: blur(22px) saturate(.6); transform: scale(1.06); opacity: .4; }
+.js-reveal [data-reveal]:not(.is-in) .br-art span { transform: scale(1.15); }
+.br-copy > *, .br-cell { transition: filter 1.1s var(--ease-out), opacity 1.1s ease, transform 1.2s var(--ease-out); transition-delay: calc(350ms + var(--i, 0) * 90ms); }
+.br-cell { transition-delay: calc(var(--i, 0) * 90ms); }
+.js-reveal [data-reveal]:not(.is-in) .br-copy > *, .js-reveal .br-cell[data-reveal]:not(.is-in) { filter: blur(10px); opacity: 0; transform: translate3d(0, 18px, 0); }
+.reduce-motion [data-reveal] *, .reduce-motion [data-reveal] { transition: none !important; filter: none !important; opacity: 1 !important; transform: none !important; }
+
+@media (max-width: 860px) {
+  .br-chapter, .br-chapter:nth-child(even) { grid-template-columns: 1fr; }
+  .br-chapter:nth-child(even) .br-art { order: 0; }
+  .br-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) { .br-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>
+<script>document.documentElement.classList.add("js-reveal")</script>
+</head>
+<body>
+<header class="mf-top">
+  <a class="mf-brand mono" href="../../"><i class="mf-dot" aria-hidden="true"></i><span><span class="mf-hide-sm">Motion Field / </span><b>blur-reveal</b></span></a>
+  <button class="mf-toggle mono" type="button" aria-pressed="false" aria-label="Reduce motion"><span class="mf-toggle__label">Reduce motion</span><span class="mf-toggle__track" aria-hidden="true"></span></button>
+</header>
+<main>
+<section class="mf-intro wrap">
+  <span class="mf-eyebrow mono">Recipe · Reveal</span>
+<h1 class="mf-h1">Blur reveal <span class="soft">Content arrives in focus.</span></h1>
+<p class="mf-lede">Instead of sliding in from somewhere, each block resolves from soft to sharp the first time it enters view. Image first, then words, each a beat behind the last. Scroll down.</p>
+  <div class="mf-meta"><span class="mf-pill">IntersectionObserver</span><span class="mf-pill">CSS transitions</span><span class="mf-pill">reveals once</span><span class="mf-pill">no-JS safe</span></div>
+</section>
+<section class="wrap br-list">
+<article class="br-chapter" data-reveal>
+  <div class="br-art art-dawn" aria-hidden="true"><span></span></div>
+  <div class="br-copy">
+    <span class="br-num mono" style="--i:0">Chapter 01</span>
+    <h2 class="br-title" style="--i:1">A new chapter arrives <span>in focus.</span></h2>
+    <p class="br-text" style="--i:2">Blur, scale and opacity resolve together over 1.4 s. The image settles first; the words follow 350 ms later.</p>
+  </div>
+</article>
+<article class="br-chapter" data-reveal>
+  <div class="br-art art-tide" aria-hidden="true"><span></span></div>
+  <div class="br-copy">
+    <span class="br-num mono" style="--i:0">Chapter 02</span>
+    <h2 class="br-title" style="--i:1">Quiet entrances <span>read as confidence.</span></h2>
+    <p class="br-text" style="--i:2">No slide-ins from the side, no bounce. The content was always there; the reader's eyes simply adjust.</p>
+  </div>
+</article>
+<article class="br-chapter" data-reveal>
+  <div class="br-art art-grid" aria-hidden="true"><span></span></div>
+  <div class="br-copy">
+    <span class="br-num mono" style="--i:0">Chapter 03</span>
+    <h2 class="br-title" style="--i:1">Let it land <span>then get out of the way.</span></h2>
+    <p class="br-text" style="--i:2">Each block reveals once. Scroll back up and it stays put, so re-reading never feels like a show.</p>
+  </div>
+</article></section>
+<section class="wrap br-specs">
+  <div class="br-specs__head"><span class="mono">The numbers</span><button class="br-replay mono" type="button" data-replay>Replay all <span aria-hidden="true">↺</span></button></div>
+  <ul class="br-grid"><li class="br-cell" data-reveal style="--i:0"><span class="mono">Blur</span><b>22px → 0</b></li><li class="br-cell" data-reveal style="--i:1"><span class="mono">Scale</span><b>1.15 → 1</b></li><li class="br-cell" data-reveal style="--i:2"><span class="mono">Opacity</span><b>0.4 → 1</b></li><li class="br-cell" data-reveal style="--i:3"><span class="mono">Duration</span><b>1.4 s</b></li><li class="br-cell" data-reveal style="--i:4"><span class="mono">Stagger</span><b>90 ms</b></li><li class="br-cell" data-reveal style="--i:5"><span class="mono">Threshold</span><b>35 %</b></li></ul>
+</section>
+<section class="wrap mf-notes" aria-label="Notes">
+<article class="mf-note"><span class="mono">Use it for</span><h2>Chapters and features</h2><p>Feature rows, case-study chapters, editorial pull quotes, image + copy pairs. It is calm enough to use on every section of a page.</p></article><article class="mf-note"><span class="mono">Knobs</span><h2>Softness and pace</h2><ul><li>Start blur <code>22px</code> image, <code>10px</code> text</li><li>Copy delay <code>350ms</code>, stagger <code>90ms</code> via <code>--i</code></li><li><code>threshold</code> 0.35, <code>rootMargin</code> −6%</li></ul></article><article class="mf-note"><span class="mono">Reduced motion & perf</span><h2>Already there</h2><p>Reduced motion shows everything instantly with no transition. Hidden state only applies once JS adds <code>.js-reveal</code>. <code>filter: blur</code> is GPU-composited but costly on huge areas; keep blurred elements under ~1 screen.</p></article>
+</section>
+</main>
+<footer class="wrap mf-foot mono"><span>Motion Field · recipe / blur-reveal</span><span>Vanilla HTML, CSS, JS · no build step</span></footer>
+<script>(() => {
+  const btn = document.querySelector(".mf-toggle");
+  if (!btn) return;
+  const sync = () => btn.setAttribute("aria-pressed", String(MotionPref.reduced));
+  btn.addEventListener("click", () => MotionPref.set(!MotionPref.reduced));
+  document.addEventListener("motionchange", sync); sync();
+})();</script>
+<script>
+/* RECIPE: blur-reveal. Elements with [data-reveal] get .is-in once, the first time 35% of them is visible. */
+(() => {
+  const root = document.documentElement, items = [...document.querySelectorAll("[data-reveal]")];
+  // <head> adds .js-reveal before first paint, so no-JS readers see everything and nothing flashes.
+  if (!("IntersectionObserver" in window)) { root.classList.remove("js-reveal"); return; }
+  const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add("is-in"); io.unobserve(e.target);
+  }), { threshold: 0.35, rootMargin: "0px 0px -6% 0px" });
+  const arm = () => items.forEach((el) => (MotionPref.reduced ? el.classList.add("is-in") : !el.classList.contains("is-in") && io.observe(el)));
+  arm();
+  document.addEventListener("motionchange", arm);
+
+  // Demo only: replay every reveal currently on screen.
+  document.querySelector("[data-replay]")?.addEventListener("click", () => {
+    if (MotionPref.reduced) return;
+    items.forEach((el) => el.classList.remove("is-in"));
+    requestAnimationFrame(() => requestAnimationFrame(() => items.forEach((el) => io.observe(el))));
+  });
+})();
+</script>
+</body>
+</html>

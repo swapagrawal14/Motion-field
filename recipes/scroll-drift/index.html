@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scroll drift · Motion Field recipe</title>
+<meta name="description" content="Rows of type and imagery that drift sideways as the page scrolls.">
+<meta name="theme-color" content="#070d1a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23070d1a'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%233fdcff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<script>(() => {
+  const root = document.documentElement, mq = matchMedia("(prefers-reduced-motion: reduce)");
+  let forced = null;
+  const apply = () => {
+    const on = forced === null ? mq.matches : forced;
+    root.classList.toggle("reduce-motion", on);
+    document.dispatchEvent(new CustomEvent("motionchange", { detail: { reduced: on } }));
+  };
+  mq.addEventListener ? mq.addEventListener("change", apply) : mq.addListener(apply);
+  window.MotionPref = { set(v) { forced = v; apply(); }, get reduced() { return root.classList.contains("reduce-motion"); } };
+  root.classList.toggle("reduce-motion", mq.matches);
+})();</script>
+<style>:root {
+  --bg: #070d1a; --bg-2: #0a1324; --surface: #0e1830; --surface-2: #132143;
+  --line: rgba(150, 180, 235, .14); --line-2: rgba(150, 180, 235, .26);
+  --ink: #e8eff9; --muted: #95a3bf; --faint: #5f6d8a;
+  --accent: #3fdcff; --accent-2: #8fefff; --accent-ink: #03141d;
+  --accent-glow: rgba(63, 220, 255, .35);
+  --ease-out: cubic-bezier(.16, 1, .3, 1); --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --sans: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --pad: clamp(20px, 4vw, 48px); --max: 1240px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { color-scheme: dark; background: var(--bg); -webkit-text-size-adjust: 100%; }
+body { min-height: 100vh; font: 16px/1.6 var(--sans); color: var(--ink); background:
+  radial-gradient(1100px 620px at 85% -8%, rgba(63, 220, 255, .09), transparent 62%),
+  radial-gradient(900px 540px at -10% 30%, rgba(70, 96, 255, .07), transparent 60%), var(--bg);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+img, svg, canvas { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--pad); }
+
+/* top bar */
+.mf-top { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px var(--pad); background: rgba(7, 13, 26, .72); backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%); border-bottom: 1px solid var(--line); }
+.mf-brand { display: flex; align-items: center; gap: 10px; color: var(--muted); text-decoration: none; min-width: 0; }
+.mf-brand b { color: var(--ink); font-weight: 500; }
+.mf-brand span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mf-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(63,220,255,.12), 0 0 14px var(--accent-glow); }
+.mf-toggle { flex: none; display: inline-flex; align-items: center; gap: 10px; padding: 7px 8px 7px 14px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line); cursor: pointer; color: var(--muted); transition: border-color .3s, color .3s; }
+.mf-toggle:hover { border-color: var(--line-2); color: var(--ink); }
+.mf-toggle__track { position: relative; width: 34px; height: 20px; border-radius: 999px; background: #1a2746; transition: background .3s; }
+.mf-toggle__track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); transition: transform .35s var(--ease-out), background .3s; }
+.mf-toggle[aria-pressed="true"] { color: var(--ink); }
+.mf-toggle[aria-pressed="true"] .mf-toggle__track { background: rgba(63,220,255,.28); }
+.mf-toggle[aria-pressed="true"] .mf-toggle__track::after { transform: translateX(14px); background: var(--accent); }
+
+/* intro */
+.mf-intro { padding-block: clamp(56px, 9vw, 120px) clamp(32px, 5vw, 56px); }
+.mf-eyebrow { display: inline-flex; align-items: center; gap: 10px; color: var(--accent); }
+.mf-eyebrow::before { content: ""; width: 22px; height: 1px; background: currentColor; }
+.mf-h1 { margin-top: 18px; max-width: 15ch; font-size: clamp(42px, 6.2vw, 88px); line-height: .98; font-weight: 600; letter-spacing: -.045em; text-wrap: balance; }
+.mf-h1 .soft { display: block; color: var(--muted); font-weight: 500; }
+.mf-lede { margin-top: 22px; max-width: 56ch; color: var(--muted); font-size: clamp(16px, 1.4vw, 19px); }
+.mf-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.mf-pill { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font: 500 11.5px/1.4 var(--mono); letter-spacing: .06em; }
+
+/* notes */
+.mf-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding-block: clamp(56px, 8vw, 110px) 32px; }
+.mf-note { padding: 24px; border-radius: 20px; background: linear-gradient(180deg, rgba(19,33,67,.55), rgba(14,24,48,.4)); border: 1px solid var(--line); }
+.mf-note h2 { margin: 12px 0 8px; font-size: 19px; letter-spacing: -.02em; font-weight: 600; }
+.mf-note p, .mf-note li { color: var(--muted); font-size: 14.5px; }
+.mf-note ul { padding-left: 18px; display: grid; gap: 4px; }
+.mf-note code { font-family: var(--mono); font-size: 12.5px; color: var(--accent-2); }
+.mf-note .mono { color: var(--faint); }
+.mf-foot { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 28px 40px; color: var(--faint); border-top: 1px solid var(--line); }
+@media (max-width: 860px) { .mf-notes { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .mf-toggle__label { display: none; } .mf-brand .mf-hide-sm { display: none; } }
+
+/* ===== recipe: scroll-drift ===== */
+.drift-band { position: relative; overflow-x: clip; padding-block: 28px 36px; border-block: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(14,24,48,.0), rgba(14,24,48,.55) 50%, rgba(14,24,48,0)); }
+.drift-label { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 22px; color: var(--faint); }
+.drift-cue { color: var(--accent); }
+.drift-cue i { display: inline-block; font-style: normal; animation: cue 1.8s var(--ease-out) infinite; }
+@keyframes cue { 0%, 100% { transform: translateX(0); opacity: .5; } 50% { transform: translateX(6px); opacity: 1; } }
+.drift-track { display: flex; align-items: center; gap: clamp(16px, 2.2vw, 32px); width: max-content; padding-left: 6vw; will-change: transform; }
+.drift-word { font-size: clamp(64px, 10vw, 164px); font-weight: 600; letter-spacing: -.055em; line-height: 1; white-space: nowrap; }
+.drift-word.soft { font-weight: 400; color: var(--accent); letter-spacing: -.04em; }
+.drift-tile { flex: none; height: clamp(72px, 9vw, 140px); aspect-ratio: 4 / 3; border-radius: 22px; position: relative; overflow: hidden;
+  box-shadow: 0 0 0 1px var(--line), 0 24px 48px -26px rgba(0,0,0,.9); }
+.drift-tile:nth-of-type(even) { aspect-ratio: 16 / 9; border-radius: 999px; }
+.t-sea { background: radial-gradient(120% 90% at 20% 0%, #9cf2ff 0%, #2bb7e6 26%, #123a7a 60%, #08122a 100%); }
+.t-sea::after { content: ""; position: absolute; inset: 55% -10% -40%; border-radius: 50%; background: rgba(7,13,26,.55); filter: blur(6px); }
+.t-dusk { background: linear-gradient(180deg, #1b2a5c, #3a4fa8 45%, #7fd7ff 80%, #e8fbff); }
+.t-dusk::after { content: ""; position: absolute; left: 50%; top: 52%; width: 34%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; background: radial-gradient(circle, #fff, #bff4ff 40%, transparent 70%); }
+.t-orb { background: radial-gradient(circle at 50% 120%, #1d3c8f, #070d1a 70%); }
+.t-orb::after { content: ""; position: absolute; left: 50%; top: 50%; width: 46%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #e6fcff, var(--accent) 38%, #0b4b7a 80%); box-shadow: 0 0 40px rgba(63,220,255,.45); }
+.t-grid { background: linear-gradient(rgba(63,220,255,.22) 1px, transparent 1px) 0 0 / 18px 18px, linear-gradient(90deg, rgba(63,220,255,.22) 1px, transparent 1px) 0 0 / 18px 18px, #0b1630; }
+.drift-track--outline { margin-top: 18px; padding-left: 0; margin-left: -34vw; }
+.drift-outline { font-size: clamp(30px, 4.2vw, 64px); font-weight: 600; letter-spacing: -.035em; white-space: nowrap; color: transparent; -webkit-text-stroke: 1px rgba(150, 200, 255, .34); }
+.drift-copy { padding-block: clamp(80px, 14vw, 180px); }
+.drift-copy--end { padding-bottom: clamp(60px, 10vw, 120px); }
+.drift-kicker { color: var(--faint); margin-bottom: 18px; }
+.drift-big { max-width: 24ch; font-size: clamp(28px, 3.6vw, 52px); line-height: 1.12; letter-spacing: -.03em; font-weight: 500; text-wrap: balance; }
+.drift-big .hl { color: var(--accent); }
+.drift-band--cards { padding-bottom: 44px; }
+.drift-track--cards { gap: 16px; padding-left: 10vw; }
+.drift-card { flex: none; width: clamp(240px, 26vw, 340px); padding: 22px 22px 26px; border-radius: 22px; background: linear-gradient(160deg, var(--surface-2), var(--surface)); border: 1px solid var(--line); }
+.drift-card .mono { color: var(--accent); font-size: 11px; }
+.drift-card h3 { margin: 28px 0 8px; font-size: 26px; letter-spacing: -.03em; font-weight: 600; }
+.drift-card p { color: var(--muted); font-size: 14.5px; }
+.reduce-motion .drift-track { will-change: auto; }
+.reduce-motion .drift-cue i { animation: none; }
+@media (max-width: 640px) { .drift-track { padding-left: 20px; } .drift-track--cards { padding-left: 20px; } }
+</style>
+
+</head>
+<body>
+<header class="mf-top">
+  <a class="mf-brand mono" href="../../"><i class="mf-dot" aria-hidden="true"></i><span><span class="mf-hide-sm">Motion Field / </span><b>scroll-drift</b></span></a>
+  <button class="mf-toggle mono" type="button" aria-pressed="false" aria-label="Reduce motion"><span class="mf-toggle__label">Reduce motion</span><span class="mf-toggle__track" aria-hidden="true"></span></button>
+</header>
+<main>
+<section class="mf-intro wrap">
+  <span class="mf-eyebrow mono">Recipe · Scroll</span>
+<h1 class="mf-h1">Scroll drift <span class="soft">The page moves down, the story moves sideways.</span></h1>
+<p class="mf-lede">Rows of type and imagery slide horizontally while their band crosses the viewport. Progress is measured per band and smoothed with a light lerp, so it glides instead of jittering.</p>
+  <div class="mf-meta"><span class="mf-pill">vanilla JS</span><span class="mf-pill">~1 KB</span><span class="mf-pill">transform only</span><span class="mf-pill">passive scroll</span></div>
+</section>
+<section class="drift-band" aria-label="Demo: words drift sideways as you scroll">
+  <div class="wrap drift-label"><span class="mono">Band A · drift −28vw</span><span class="mono drift-cue">Scroll <i aria-hidden="true">→</i></span></div>
+  <div class="drift-track" data-drift="-28"><span class="drift-word">Drift</span><span class="drift-tile t-sea" aria-hidden="true"></span><span class="drift-word soft">with the</span><span class="drift-tile t-orb" aria-hidden="true"></span><span class="drift-word">tide</span><span class="drift-tile t-dusk" aria-hidden="true"></span><span class="drift-word soft">of the</span><span class="drift-tile t-grid" aria-hidden="true"></span><span class="drift-word">page.</span><span class="drift-tile t-sea" aria-hidden="true"></span></div>
+  <div class="drift-track drift-track--outline" data-drift="20" aria-hidden="true"><span class="drift-outline">Scroll-linked ✦ Horizontal drift ✦ Eased with lerp ✦ Scroll-linked ✦ Horizontal drift ✦ Eased with lerp ✦</span></div>
+</section>
+
+<section class="wrap drift-copy">
+  <p class="drift-kicker mono">How it reads</p>
+  <p class="drift-big">The page moves down. The story moves <span class="hl">sideways.</span> Two rows travel in opposite directions at different rates, so the band gains depth without a single 3D transform.</p>
+</section>
+
+<section class="drift-band drift-band--cards" aria-label="Demo: a row of cards drifting at a slower rate">
+  <div class="wrap drift-label"><span class="mono">Band B · drift −16vw · cards</span><span class="mono drift-cue">Slower rate</span></div>
+  <div class="drift-track drift-track--cards" data-drift="-16"><article class="drift-card"><span class="mono">01 · Arrive</span><h3>Land softly</h3><p>The first frame sets the direction the story travels.</p></article><article class="drift-card"><span class="mono">02 · Travel</span><h3>Keep moving</h3><p>Each row drifts at its own rate, so depth appears for free.</p></article><article class="drift-card"><span class="mono">03 · Pause</span><h3>Let it breathe</h3><p>Progress is measured per band, never against the whole page.</p></article><article class="drift-card"><span class="mono">04 · Leave</span><h3>Hand it on</h3><p>When the band leaves the viewport the loop stops working.</p></article><article class="drift-card"><span class="mono">05 · Return</span><h3>Scroll back</h3><p>Everything retraces, because position is a pure function of scroll.</p></article></div>
+</section>
+
+<section class="wrap drift-copy drift-copy--end">
+  <p class="drift-big">Scroll back up and every row <span class="hl">retraces</span> its path.</p>
+</section>
+<section class="wrap mf-notes" aria-label="Notes">
+<article class="mf-note"><span class="mono">Use it for</span><h2>Stories with a direction</h2><p>Process bands, chapter breaks, manifesto lines, logo strips between sections. One or two bands per page is plenty.</p></article><article class="mf-note"><span class="mono">Knobs</span><h2>Tune the travel</h2><ul><li><code>data-drift</code> distance in vw (sign = direction)</li><li><code>EASE</code> 0.08 floaty → 1 locked</li><li>Opposite signs on stacked rows add depth</li></ul></article><article class="mf-note"><span class="mono">Reduced motion & perf</span><h2>Still, and cheap</h2><p>With reduced motion every row sits at 0. Only <code>transform</code> changes; rows outside the viewport are skipped and the rAF loop stops once settled.</p></article>
+</section>
+</main>
+<footer class="wrap mf-foot mono"><span>Motion Field · recipe / scroll-drift</span><span>Vanilla HTML, CSS, JS · no build step</span></footer>
+<script>(() => {
+  const btn = document.querySelector(".mf-toggle");
+  if (!btn) return;
+  const sync = () => btn.setAttribute("aria-pressed", String(MotionPref.reduced));
+  btn.addEventListener("click", () => MotionPref.set(!MotionPref.reduced));
+  document.addEventListener("motionchange", sync); sync();
+})();</script>
+<script>
+/* RECIPE: scroll-drift. Each [data-drift] row moves sideways (in vw) as its band crosses the viewport. */
+(() => {
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const rows = [...document.querySelectorAll("[data-drift]")].map((el) => ({ el, band: el.parentElement, amount: parseFloat(el.dataset.drift) || 0, cur: 0, target: 0, live: true }));
+  const EASE = 0.12;            // 1 = locked to scroll, lower = more glide
+  let raf = 0;
+
+  const measure = () => {
+    const vh = innerHeight, reduced = MotionPref.reduced;
+    rows.forEach((r) => {
+      if (!r.live) return;
+      const b = r.band.getBoundingClientRect();
+      const progress = clamp((vh - b.top) / (vh + b.height)); // 0 entering bottom → 1 leaving top
+      r.target = reduced ? 0 : (progress - 0.5) * r.amount;
+    });
+  };
+  const loop = () => {
+    raf = 0; let moving = false;
+    rows.forEach((r) => {
+      const ease = MotionPref.reduced ? 1 : EASE;
+      r.cur += (r.target - r.cur) * ease;
+      if (Math.abs(r.target - r.cur) > 0.01) moving = true; else r.cur = r.target;
+      r.el.style.transform = `translate3d(${r.cur.toFixed(3)}vw, 0, 0)`;
+    });
+    if (moving) raf = requestAnimationFrame(loop);
+  };
+  const kick = () => { measure(); if (!raf) raf = requestAnimationFrame(loop); };
+
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => rows.forEach((r) => { if (r.band === e.target) r.live = e.isIntersecting; })), { rootMargin: "100px 0px" });
+    new Set(rows.map((r) => r.band)).forEach((b) => io.observe(b));
+  }
+  addEventListener("scroll", kick, { passive: true });
+  addEventListener("resize", kick, { passive: true });
+  document.addEventListener("motionchange", kick);
+  measure(); rows.forEach((r) => (r.cur = r.target)); loop();
+})();
+</script>
+</body>
+</html>
