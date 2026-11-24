@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halcyon — the note-taking app that thinks in outlines</title>
+<meta name="description" content="Product launch template from Motion Field: launch hero, feature tour, spec switcher and launch timeline in a warm paper and vermilion system.">
+<meta name="theme-color" content="#f4f0e8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23f4f0e8'/%3E%3Cpath d='M8 20 L16 9 L24 20' stroke='%23ff4d1c' stroke-width='3.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<script>(() => {
+  const root = document.documentElement, mq = matchMedia("(prefers-reduced-motion: reduce)");
+  let forced = null;
+  const apply = () => {
+    const on = forced === null ? mq.matches : forced;
+    root.classList.toggle("reduce-motion", on);
+    document.dispatchEvent(new CustomEvent("motionchange", { detail: { reduced: on } }));
+  };
+  mq.addEventListener ? mq.addEventListener("change", apply) : mq.addListener(apply);
+  window.MotionPref = { set(v) { forced = v; apply(); }, get reduced() { return root.classList.contains("reduce-motion"); } };
+  root.classList.toggle("reduce-motion", mq.matches);
+})();</script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<a class="skip" href="#tour">Skip to the tour</a>
+<div class="progress" aria-hidden="true"><i data-progress></i></div>
+
+<header class="nav">
+  <a class="nav__brand" href="#top">Halcyon<sup>beta</sup></a>
+  <nav class="nav__links" aria-label="Primary">
+    <a href="#tour">Tour</a>
+    <a href="#specs">Specs</a>
+    <a href="#timeline">Roadmap</a>
+  </nav>
+  <a class="nav__cta" href="#get" data-magnetic>Get early access</a>
+</header>
+
+<main id="top">
+  <!-- ================= hero ================= -->
+  <section class="hero">
+    <div class="hero__grain" aria-hidden="true"></div>
+    <div class="hero__glow" aria-hidden="true"></div>
+    <div class="wrap hero__grid">
+      <div class="hero__copy">
+        <p class="eyebrow" data-reveal><span class="dot"></span> Launching in public — <span data-swap="hero.eta">spring 2027</span></p>
+        <h1 class="hero__title" data-split>Notes that keep their shape.</h1>
+        <p class="lede" data-reveal>Halcyon is an outliner that stays out of your way: nest anything, link anything, and let the structure do the remembering. Built for people who think in trees, not walls.</p>
+        <div class="hero__actions" data-reveal>
+          <a class="btn" href="#get" data-magnetic>Join the waitlist</a>
+          <a class="btn btn--ghost" href="#tour">Watch it move <span class="btn__arrow" aria-hidden="true">↓</span></a>
+        </div>
+        <ul class="hero__meta" data-reveal>
+          <li><b data-count="24">0</b><span>fps at idle</span></li>
+          <li><b data-count="4">0</b><span>platforms</span></li>
+          <li><b>0</b><span>accounts required</span></li>
+        </ul>
+      </div>
+
+      <div class="hero__stage" data-reveal>
+        <div class="device">
+          <div class="device__bar"><i></i><i></i><i></i><span>halcyon / inbox.mnd</span></div>
+          <div class="device__body">
+            <div class="row" style="--d:0"><span class="row__bullet"></span><span class="row__txt">Weekly review</span></div>
+            <div class="row row--2" style="--d:1"><span class="row__bullet"></span><span class="row__txt">Ship the outliner beta</span></div>
+            <div class="row row--2" style="--d:2"><span class="row__bullet"></span><span class="row__txt">Write the launch note</span></div>
+            <div class="row row--2" style="--d:3"><span class="row__bullet"></span><span class="row__txt">Record the 15s trailer</span></div>
+            <div class="row row--3" style="--d:4"><span class="row__bullet"></span><span class="row__txt">[[Motion Field]]</span></div>
+            <div class="row" style="--d:5"><span class="row__bullet"></span><span class="row__txt">Read later</span></div>
+          </div>
+          <div class="device__foot"><span>⌘K to jump</span><span>synced</span></div>
+        </div>
+        <div class="chip chip--a" data-float>1.2 ms search</div>
+        <div class="chip chip--b" data-float>local-first</div>
+        <div class="chip chip--c" data-float>outline → mind map</div>
+      </div>
+    </div>
+    <div class="wrap hero__foot">
+      <span class="mono">Scroll to take the tour</span>
+      <span class="scrollcue" aria-hidden="true"></span>
+    </div>
+  </section>
+
+  <!-- ================= marquee ================= -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <span>Nest anything</span><span>Link anything</span><span>Offline first</span><span>Plain-text export</span><span>One pane, no tabs</span>
+      <span>Nest anything</span><span>Link anything</span><span>Offline first</span><span>Plain-text export</span><span>One pane, no tabs</span>
+    </div>
+  </div>
+
+  <!-- ================= tour / pinned feature rows ================= -->
+  <section class="tour" id="tour">
+    <div class="wrap tour__head">
+      <p class="eyebrow" data-reveal>The tour</p>
+      <h2 class="h2" data-split>Four moves, one pane.</h2>
+    </div>
+
+    <div class="tour__list">
+      <article class="feature" data-feature>
+        <div class="wrap feature__grid">
+          <div class="feature__sticky">
+            <span class="feature__num mono">01</span>
+            <h3 class="feature__title">Nest anything.</h3>
+            <p>Every line is a node. Tab to nest, shift-tab to lift. The structure is the document — no separate outline mode to switch into.</p>
+            <a class="feature__link" href="#get">Read the docs <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="feature__panel">
+            <div class="tree">
+              <div class="tree__node" style="--i:0">Q1 plan</div>
+              <div class="tree__node tree__node--1" style="--i:1">Outliner beta</div>
+              <div class="tree__node tree__node--2" style="--i:2">Keyboard map</div>
+              <div class="tree__node tree__node--2" style="--i:3">Sync engine</div>
+              <div class="tree__node tree__node--1" style="--i:4">Launch note</div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="feature" data-feature>
+        <div class="wrap feature__grid feature__grid--flip">
+          <div class="feature__sticky">
+            <span class="feature__num mono">02</span>
+            <h3 class="feature__title">Link anything.</h3>
+            <p>Type <code>[[</code> and every node you have ever written is one keystroke away. Backlinks build themselves; you never file anything.</p>
+            <a class="feature__link" href="#get">Read the docs <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="feature__panel">
+            <svg class="links" viewBox="0 0 400 300" role="img" aria-label="A small graph of linked notes">
+              <path class="links__wire" d="M60 220 C120 140, 180 120, 250 130" pathLength="1"/>
+              <path class="links__wire" d="M250 130 C310 140, 340 200, 330 250" pathLength="1"/>
+              <path class="links__wire" d="M60 220 C110 260, 220 268, 330 250" pathLength="1"/>
+              <path class="links__wire" d="M250 130 C230 70, 160 50, 110 60" pathLength="1"/>
+              <g class="links__node" style="--i:0"><circle cx="60" cy="220" r="26"/><text x="60" y="224">Plan</text></g>
+              <g class="links__node" style="--i:1"><circle cx="250" cy="130" r="34"/><text x="250" y="134">Beta</text></g>
+              <g class="links__node" style="--i:2"><circle cx="330" cy="250" r="22"/><text x="330" y="254">Sync</text></g>
+              <g class="links__node" style="--i:3"><circle cx="110" cy="60" r="20"/><text x="110" y="64">Map</text></g>
+            </svg>
+          </div>
+        </div>
+      </article>
+
+      <article class="feature" data-feature>
+        <div class="wrap feature__grid">
+          <div class="feature__sticky">
+            <span class="feature__num mono">03</span>
+            <h3 class="feature__title">Offline, always.</h3>
+            <p>Your file lives on your disk and syncs when it can. A plane is not a loading state.</p>
+            <a class="feature__link" href="#get">Read the docs <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="feature__panel">
+            <div class="sync">
+              <div class="sync__row"><span>device</span><i class="sync__bar"><b style="--w:100%"></b></i><em>local</em></div>
+              <div class="sync__row"><span>laptop</span><i class="sync__bar"><b style="--w:78%"></b></i><em>synced</em></div>
+              <div class="sync__row"><span>tablet</span><i class="sync__bar"><b style="--w:46%"></b></i><em>queued</em></div>
+              <div class="sync__row"><span>phone</span><i class="sync__bar"><b style="--w:22%"></b></i><em>offline</em></div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= specs switcher ================= -->
+  <section class="specs" id="specs">
+    <div class="wrap">
+      <div class="specs__head">
+        <div>
+          <p class="eyebrow" data-reveal>Specs</p>
+          <h2 class="h2" data-split>Pick a shape.</h2>
+        </div>
+        <p class="specs__note" data-reveal>One file format, three surfaces. Switch to see what changes — nothing else does.</p>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Product surface">
+        <button class="tab" role="tab" aria-selected="true" aria-controls="pane-desktop" id="tab-desktop" data-tab="desktop">Desktop</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="pane-tablet" id="tab-tablet" data-tab="tablet" tabindex="-1">Tablet</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="pane-phone" id="tab-phone" data-tab="phone" tabindex="-1">Phone</button>
+        <span class="tabs__ink" aria-hidden="true"></span>
+      </div>
+
+      <div class="panes">
+        <div class="pane" role="tabpanel" id="pane-desktop" aria-labelledby="tab-desktop" data-pane="desktop">
+          <div class="pane__art pane__art--desktop" aria-hidden="true">
+            <div class="pane__win"><span></span><span></span><span></span></div>
+            <div class="pane__cols"><i></i><i></i><i class="is-accent"></i></div>
+          </div>
+          <dl class="spec">
+            <div><dt>Panes</dt><dd>3, resizable</dd></div>
+            <div><dt>Shortcuts</dt><dd><span data-swap="specs.desktop.keys">48</span>, all remappable</dd></div>
+            <div><dt>Export</dt><dd>Markdown, OPML, JSON</dd></div>
+            <div><dt>Price</dt><dd><span data-swap="specs.desktop.price">$0 in beta</span></dd></div>
+          </dl>
+        </div>
+        <div class="pane" role="tabpanel" id="pane-tablet" aria-labelledby="tab-tablet" data-pane="tablet" hidden>
+          <div class="pane__art pane__art--tablet" aria-hidden="true">
+            <div class="pane__win"><span></span><span></span><span></span></div>
+            <div class="pane__cols pane__cols--two"><i></i><i class="is-accent"></i></div>
+          </div>
+          <dl class="spec">
+            <div><dt>Panes</dt><dd>2, split view</dd></div>
+            <div><dt>Input</dt><dd>Apple Pencil <span data-swap="specs.tablet.input">(planned)</span></dd></div>
+            <div><dt>Export</dt><dd>Markdown, OPML</dd></div>
+            <div><dt>Price</dt><dd><span data-swap="specs.tablet.price">$0 in beta</span></dd></div>
+          </dl>
+        </div>
+        <div class="pane" role="tabpanel" id="pane-phone" aria-labelledby="tab-phone" data-pane="phone" hidden>
+          <div class="pane__art pane__art--phone" aria-hidden="true">
+            <div class="pane__win pane__win--phone"><span></span></div>
+            <div class="pane__cols pane__cols--one"><i class="is-accent"></i></div>
+          </div>
+          <dl class="spec">
+            <div><dt>Panes</dt><dd>1, stack navigation</dd></div>
+            <div><dt>Capture</dt><dd>Share sheet, widget</dd></div>
+            <div><dt>Export</dt><dd>Markdown</dd></div>
+            <div><dt>Price</dt><dd><span data-swap="specs.phone.price">$0 in beta</span></dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= timeline ================= -->
+  <section class="timeline" id="timeline">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>Roadmap</p>
+      <h2 class="h2" data-split>Where it goes next.</h2>
+      <ol class="tl">
+        <li class="tl__item" style="--i:0"><span class="tl__dot"></span><span class="tl__when mono">Now</span><h3>Private beta</h3><p>Outliner, links, local sync. Invite only while the format settles.</p></li>
+        <li class="tl__item" style="--i:1"><span class="tl__dot"></span><span class="tl__when mono" data-swap="timeline.1.when">Next</span><h3>Tablet + Pencil</h3><p>Two panes, ink annotations, and a keyboard map that makes sense on glass.</p></li>
+        <li class="tl__item" style="--i:2"><span class="tl__dot"></span><span class="tl__when mono" data-swap="timeline.2.when">Later</span><h3>Publish</h3><p>Share a node as a page. Read-only, fast, no account for the reader.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================= CTA ================= -->
+  <section class="get" id="get">
+    <div class="wrap get__inner">
+      <p class="eyebrow eyebrow--light" data-reveal>Early access</p>
+      <h2 class="get__title" data-split>Be first in the tree.</h2>
+      <p class="get__sub" data-reveal>One email when the beta opens. No drip campaign, no "just circling back".</p>
+      <form class="wait" data-wait>
+        <label class="visually-hidden" for="email">Email address</label>
+        <input id="email" class="wait__input" type="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+        <button class="wait__btn" type="submit" data-magnetic>Request access</button>
+      </form>
+      <p class="wait__done" data-wait-done hidden>You're on the list. This demo stores nothing — wire it to your own endpoint.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__grid">
+    <span class="foot__word" aria-hidden="true">HALCYON</span>
+    <div class="foot__cols">
+      <p>Halcyon is a placeholder product for the <a href="../../README.md">Motion Field</a> product-launch template. Replace every <code>data-swap</code> before shipping.</p>
+      <p class="mono">Vanilla HTML, CSS, JS · no build step · reduced-motion safe</p>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

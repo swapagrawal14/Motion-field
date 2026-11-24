@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Field Day — a one-night festival of loud ideas</title>
+<meta name="description" content="Event template from Motion Field: lineup, schedule, venue and tickets in a poster-like near-black and acid lime system.">
+<meta name="theme-color" content="#0b0b0d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0b0d'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23c6ff3d'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script>(() => {
+  const root = document.documentElement, mq = matchMedia("(prefers-reduced-motion: reduce)");
+  let forced = null;
+  const apply = () => {
+    const on = forced === null ? mq.matches : forced;
+    root.classList.toggle("reduce-motion", on);
+    document.dispatchEvent(new CustomEvent("motionchange", { detail: { reduced: on } }));
+  };
+  mq.addEventListener ? mq.addEventListener("change", apply) : mq.addListener(apply);
+  window.MotionPref = { set(v) { forced = v; apply(); }, get reduced() { return root.classList.contains("reduce-motion"); } };
+  root.classList.toggle("reduce-motion", mq.matches);
+})();</script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<a class="skip" href="#lineup">Skip to lineup</a>
+
+<header class="nav">
+  <a class="nav__brand" href="#top" data-swap="nav.name">FIELD DAY</a>
+  <nav class="nav__links" aria-label="Primary">
+    <a href="#lineup" data-swap="nav.lineup">Lineup</a>
+    <a href="#schedule" data-swap="nav.schedule">Schedule</a>
+    <a href="#venue" data-swap="nav.venue">Venue</a>
+  </nav>
+  <a class="nav__cta" href="#tickets" data-swap="nav.cta">Get tickets</a>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono"><span data-swap="hero.date">Sat 14 Feb 2027</span> · <span data-swap="hero.city">Udaipur, IN</span></p>
+      <h1 class="hero__title" data-split data-swap="hero.title">One night of loud ideas.</h1>
+      <p class="hero__lede" data-swap="hero.lede">Talks, sound and a room full of people who make things. Six voices, one stage, zero panels about panels.</p>
+      <div class="hero__row">
+        <a class="btn" href="#tickets" data-swap="hero.cta">Get a ticket</a>
+        <div class="count" aria-label="Countdown to the event">
+          <span class="count__cell"><b data-cd="d">00</b><i class="mono">days</i></span>
+          <span class="count__cell"><b data-cd="h">00</b><i class="mono">hrs</i></span>
+          <span class="count__cell"><b data-cd="m">00</b><i class="mono">min</i></span>
+        </div>
+      </div>
+    </div>
+    <div class="hero__grid" aria-hidden="true"></div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <span>Field Day 2027</span><i></i><span>One night</span><i></i><span>Six voices</span><i></i><span>Udaipur</span><i></i>
+      <span>Field Day 2027</span><i></i><span>One night</span><i></i><span>Six voices</span><i></i><span>Udaipur</span><i></i>
+    </div>
+  </div>
+
+  <section class="lineup wrap" id="lineup">
+    <p class="eyebrow mono" data-swap="lineup.eyebrow">Lineup · 6</p>
+    <h2 class="section-title" data-swap="lineup.title">Six people, one stage.</h2>
+    <div class="lineup__grid">
+      <article class="act" data-tilt tabindex="0"><div class="act__art act__art--a" aria-hidden="true"></div><div class="act__meta"><span class="mono">01 · 19:00</span><h3 data-swap="lineup.1.name">Aarav Mehta</h3><p data-swap="lineup.1.role">Type &amp; motion</p></div></article>
+      <article class="act" data-tilt tabindex="0"><div class="act__art act__art--b" aria-hidden="true"></div><div class="act__meta"><span class="mono">02 · 19:30</span><h3 data-swap="lineup.2.name">Nadia Khan</h3><p data-swap="lineup.2.role">Creative code</p></div></article>
+      <article class="act" data-tilt tabindex="0"><div class="act__art act__art--c" aria-hidden="true"></div><div class="act__meta"><span class="mono">03 · 20:00</span><h3 data-swap="lineup.3.name">Rohan Iyer</h3><p data-swap="lineup.3.role">Sound design</p></div></article>
+      <article class="act" data-tilt tabindex="0"><div class="act__art act__art--d" aria-hidden="true"></div><div class="act__meta"><span class="mono">04 · 20:40</span><h3 data-swap="lineup.4.name">Maya Rao</h3><p data-swap="lineup.4.role">Art direction</p></div></article>
+      <article class="act" data-tilt tabindex="0"><div class="act__art act__art--e" aria-hidden="true"></div><div class="act__meta"><span class="mono">05 · 21:10</span><h3 data-swap="lineup.5.name">Dev Sharma</h3><p data-swap="lineup.5.role">3D &amp; WebGL</p></div></article>
+      <article class="act" data-tilt tabindex="0"><div class="act__art act__art--f" aria-hidden="true"></div><div class="act__meta"><span class="mono">06 · 21:40</span><h3 data-swap="lineup.6.name">Zoya Ali</h3><p data-swap="lineup.6.role">Live set</p></div></article>
+    </div>
+  </section>
+
+  <section class="schedule wrap" id="schedule">
+    <p class="eyebrow mono" data-swap="schedule.eyebrow">Schedule · one evening</p>
+    <h2 class="section-title" data-swap="schedule.title">Doors at six. Done by ten.</h2>
+    <div class="schedule__path" data-path>
+      <svg viewBox="0 0 1000 260" role="img" aria-label="A timeline from doors at 18:00 to the last set at 22:00">
+        <path class="ghost" d="M40 200C220 200 220 60 420 60S600 210 760 150S900 60 960 60" fill="none"/>
+        <path class="line" d="M40 200C220 200 220 60 420 60S600 210 760 150S900 60 960 60" pathLength="1" fill="none"/>
+        <g class="node" data-node="0" transform="translate(40 200)"><circle r="6"/><text y="34">18:00</text></g>
+        <g class="node" data-node="1" transform="translate(420 60)"><circle r="6"/><text y="-18">19:00</text></g>
+        <g class="node" data-node="2" transform="translate(760 150)"><circle r="6"/><text y="34">21:00</text></g>
+        <g class="node" data-node="3" transform="translate(960 60)"><circle r="6"/><text y="-18">22:00</text></g>
+      </svg>
+    </div>
+    <ol class="schedule__list">
+      <li class="slot" data-step="0"><span class="mono">18:00</span><b data-swap="schedule.1.title">Doors &amp; records</b><span data-swap="schedule.1.body">Bar open, warm-up set, the room fills.</span></li>
+      <li class="slot" data-step="1"><span class="mono">19:00</span><b data-swap="schedule.2.title">Talks, part one</b><span data-swap="schedule.2.body">Three voices, twenty minutes each.</span></li>
+      <li class="slot" data-step="2"><span class="mono">21:00</span><b data-swap="schedule.3.title">Talks, part two</b><span data-swap="schedule.3.body">The louder half of the programme.</span></li>
+      <li class="slot" data-step="3"><span class="mono">22:00</span><b data-swap="schedule.4.title">Last set</b><span data-swap="schedule.4.body">Lights down, one long set, then home.</span></li>
+    </ol>
+  </section>
+
+  <section class="venue wrap" id="venue">
+    <div class="venue__map" aria-hidden="true">
+      <span class="venue__pin"></span><span class="venue__road venue__road--a"></span><span class="venue__road venue__road--b"></span>
+      <span class="venue__block venue__block--a"></span><span class="venue__block venue__block--b"></span><span class="venue__block venue__block--c"></span>
+    </div>
+    <div class="venue__copy">
+      <p class="eyebrow mono" data-swap="venue.eyebrow">Venue</p>
+      <h2 class="section-title" data-swap="venue.title">An old courtyard, wired for sound.</h2>
+      <p data-swap="venue.body">Twenty minutes from the lake, one gate, two bars, a courtyard that holds four hundred people and a sound system that does not need to shout.</p>
+      <address class="mono" data-swap="venue.address">14, Fateh Sagar Road · Udaipur 313001</address>
+      <a class="link" href="#" data-swap="venue.map">Open in maps ↗</a>
+    </div>
+  </section>
+
+  <section class="tickets wrap" id="tickets">
+    <p class="eyebrow mono" data-swap="tickets.eyebrow">Tickets · early bird until 31 Dec</p>
+    <h2 class="section-title" data-swap="tickets.title">Pick a way in.</h2>
+    <div class="tickets__grid">
+      <article class="tier"><span class="mono" data-swap="tickets.1.label">General</span><b data-swap="tickets.1.price">₹1,499</b><p data-swap="tickets.1.body">One entry, all talks, standing room.</p></article>
+      <article class="tier tier--hot"><span class="mono" data-swap="tickets.2.label">Front row</span><b data-swap="tickets.2.price">₹3,499</b><p data-swap="tickets.2.body">First three rows, a drink, a poster.</p></article>
+      <article class="tier"><span class="mono" data-swap="tickets.3.label">Duo</span><b data-swap="tickets.3.price">₹2,799</b><p data-swap="tickets.3.body">Two general entries, one QR.</p></article>
+    </div>
+    <div class="mag-zone" data-mag-zone>
+      <a class="btn" href="#" data-magnetic data-swap="tickets.cta"><span class="btn__label">Get tickets</span></a>
+    </div>
+  </section>
+
+  <section class="faq wrap">
+    <p class="eyebrow mono" data-swap="faq.eyebrow">Questions</p>
+    <h2 class="section-title" data-swap="faq.title">Before you ask.</h2>
+    <div class="faq__list">
+      <details><summary data-swap="faq.1.q">Is there parking?</summary><p data-swap="faq.1.a">Yes, a paid lot behind the venue and street parking after 18:00. The courtyard gate is a two-minute walk.</p></details>
+      <details><summary data-swap="faq.2.q">Can I get a refund?</summary><p data-swap="faq.2.a">Full refund until seven days before the event. After that, tickets are transferable but not refundable.</p></details>
+      <details><summary data-swap="faq.3.q">Is it accessible?</summary><p data-swap="faq.3.a">Step-free entry, accessible toilets and a reserved seating row. Write to us and we will hold a space.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer class="foot wrap">
+  <p class="foot__word" data-swap="footer.word">FIELD DAY</p>
+  <div class="foot__row mono">
+    <span data-swap="footer.credit">Crafted by Swapnil Agrawal (BDS intern)</span>
+    <span data-swap="footer.rights">© 2027 · Built with the Motion Field skill</span>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

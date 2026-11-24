@@ -10,6 +10,20 @@ because the reader did something: pinned heroes, horizontal galleries, 3D card w
 magnetic buttons. Every move is plain vanilla HTML/CSS/JS with a reduced-motion path and offscreen pausing, and
 `tools/qa.py` checks the result before a human ever sees it.
 
+## What's new in this update
+
+- **21 recipes** — every recipe in [recipes/INDEX.md](recipes/INDEX.md) now exists as a live demo (the 15 that
+  were missing are built and QA'd), plus three new ones: [scroll-scrub video hero](recipes/scroll-scrub-hero/),
+  [acting mascot](recipes/acting-mascot/) and the [UI sound kit](recipes/ui-sound/).
+- **4 templates** — [landing](templates/landing/), [portfolio](templates/portfolio/),
+  [event/invite](templates/event/) and [product-launch](templates/product-launch/); the last three are
+  vanilla (no libraries) and pass `tools/qa.py`.
+- **6 new tools** — `design_lint.py` (accent / pinned / layout / duration gates), `frames.py` (video → WebP
+  frame sequence), `style_ref.py` (reference → DESIGN.md tokens), `treatments.py` (3 art directions),
+  `sfx.py` (WAV previews) and `trailer.py` (15 s title card → scroll → end card). `qa.py` now takes
+  `--record` to write a scroll video.
+- **`assets/ui-sound.js`** — procedural WebAudio pops, ticks, whooshes and chimes, **muted by default**.
+
 ## Use it with any agent
 
 Paste this into your agent (swap the bracketed parts):
@@ -39,8 +53,18 @@ SKILL.md              craft: motion principles, layout map (section → move), a
 recipes/INDEX.md      every recipe at a glance: when to use, weight, dependencies
 recipes/<name>/       index.html (self-contained live demo) + README.md (when, knobs, a11y/perf) + prompt.md
 templates/landing/    polished product landing page built from the recipes
-templates/portfolio/  polished creative portfolio built from the recipes
-tools/qa.py           Playwright QA runner: screenshots, contact sheet, console/network/overflow/LCP/weight report
+templates/portfolio/  polished creative portfolio (vanilla, no libraries)
+templates/event/      one-page event / invite site (vanilla, no libraries)
+templates/product-launch/  launch page with hero, tour, spec switcher, roadmap, waitlist (vanilla)
+tools/qa.py           Playwright QA runner: screenshots, contact sheet, console/network/overflow/LCP/weight;
+                      --record writes a top-to-bottom scroll MP4 (WebM without ffmpeg)
+tools/design_lint.py  accent budget, pinned sections, layout animation and duration gates
+tools/frames.py       video (ffmpeg) or built-in turntable → WebP frame sequence + poster + manifest
+tools/style_ref.py    reference URL/screenshot → DESIGN.md tokens (palette, type, radii, image prompt)
+tools/treatments.py   three art directions (A · Midnight, B · Paper, C · Pop) as DESIGN.md files
+tools/trailer.py      15 s site trailer: title card + scroll-through + end card (MP4 with ffmpeg)
+tools/sfx.py          renders the UI sound kit to WAV; assets/ui-sound.js is the WebAudio version
+assets/ui-sound.js    procedural WebAudio pops/ticks/whooshes, muted by default
 index.html, app.js, styles.css, assets/   the Motion Field showcase site (below)
 ```
 
@@ -49,11 +73,16 @@ index.html, app.js, styles.css, assets/   the Motion Field showcase site (below)
 ```bash
 python3 -m http.server 8080 &
 python3 tools/qa.py http://localhost:8080/recipes/magnetic-button/ --out qa/magnetic
-# → qa/magnetic/contact-sheet.png, qa/magnetic/report.md, qa/magnetic/report.json
+python3 tools/qa.py http://localhost:8080/templates/portfolio/ --record qa/portfolio-scroll.mp4
+python3 tools/design_lint.py http://localhost:8080/templates/portfolio/ --out qa/portfolio-lint
+python3 tools/trailer.py http://localhost:8080/templates/event/ --out trailer.mp4 --title "Field Day"
+python3 tools/trailer.py http://localhost:8080/templates/product-launch/ --out trailer.webm --title "Halcyon"
+# → contact-sheet.png, report.md, report.json, scroll video, design-lint report, 15 s trailer
 ```
 
 Exit code is non-zero when a gate fails (console errors, failed requests, horizontal overflow, LCP or weight
-over budget), so agents can loop on it.
+over budget), so agents can loop on it. `design_lint.py` adds the gates screenshots cannot see: accent under
+10%, one pinned section at a time, no layout properties animated, no finite motion over 1.4 s.
 
 ---
 

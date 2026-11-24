@@ -19,6 +19,8 @@ generic template with fade-ins sprinkled on.
 | A static server | preview | `python3 -m http.server 8080` |
 | An **image generator** that takes **reference images** (first ref = style to copy) | hero art, section art, textures, product shots in ONE consistent style | generate one test image first |
 | `cwebp` or Pillow / ImageMagick | convert every raster to WebP/AVIF under budget | `cwebp -version` or `python3 -c "import PIL"` |
+| Optional: `ffmpeg` + `ffprobe` | `tools/frames.py video` → scroll-scrub frame sequences | `ffmpeg -version` |
+| Optional: `numpy` | `tools/sfx.py` → WAV previews of the sound kit | `python3 -c "import numpy"` |
 | Optional: a framework (Next.js, Astro, Vite+React) | only if the human wants one; every recipe here is vanilla and ports 1:1 | |
 
 **Never hard-code an API key** in code, commits or messages; read it from the environment. No image generator?
@@ -43,18 +45,29 @@ Work in a new folder (e.g. `sites/<name>/`) or copy the closest starter from `te
 1. **Reference teardown.** For each reference: screenshot it at 1440 and 390 (`tools/qa.py <url>`), then write
    ten lines: palette (hex), type (families, sizes, weights, tracking), grid + spacing, corner radii, imagery
    style, section order, and its **motion language** (what moves, on which trigger, how fast, which easing).
-2. **Art direction (write it down in `DESIGN.md`).** Palette (bg, surface, ink, muted, 1 accent, 1 support),
-   type pair + scale (clamp() sizes), radius + border + shadow rules, image style prompt, motion language
-   (3–5 named moves you will reuse, their durations and easings). One system, used everywhere.
+2. **Art direction (write it down in `DESIGN.md`).** No reference yet? Run
+   `python3 tools/treatments.py --name <slug> --brief "..."` — it writes three complete `DESIGN.md` art
+   directions (A · Midnight, B · Paper, C · Pop). **Show the human all three and wait for a letter before
+   building.** Have a reference? `python3 tools/style_ref.py <url-or-screenshot> --out DESIGN.md` reads its
+   palette, type ladder, letter-spacing and radii into tokens — then confirm them with the human.
+   The file must contain: palette (bg, surface, ink, muted, 1 accent, 1 support), type pair + scale
+   (clamp() sizes), radius + border + shadow rules, image style prompt, and 3–5 named moves with durations
+   and easings. One system, used everywhere.
 3. **Assets.** Generate the hero image first, check it, then pass it as the **first reference** to every later
    image so the set matches. Export WebP/AVIF at the size it displays (×2 for retina, max ~2400 px), hero
    ≤ 250 KB, others ≤ 150 KB, video ≤ 2 MB with a poster. Give every image `width`/`height` and `alt`.
+   For a scroll-scrub hero: `python3 tools/frames.py video hero.mp4 --out <site>/frames --count 24`
+   (or `demo` to render the built-in turntable) → WebP sequence + poster + `manifest.json`; keep it under
+   ~30 frames.
 4. **Build section by section.** Static layout and real content first, all breakpoints, no motion. Use the
    layout map in SKILL.md. Screenshot each section at 1440 and 390 before moving on.
 5. **Motion pass.** Add moves from `recipes/` (each has a demo, README and `prompt.md`). Every move needs a
    reason (guide the eye, show cause and effect, reward an action). One hero-scale moment per screen, the rest
    quiet. Wire `prefers-reduced-motion` as you go, not at the end.
 6. **QA** (§4), fix, repeat. Then show the human screenshots + a local link or a preview build, and wait.
+   Record a scroll-through for review and the README with `python3 tools/qa.py <target> --record qa/scroll.mp4`.
+   For a launch promo, `python3 tools/trailer.py <target> --out trailer.mp4 --title "..."` records a 15 s
+   title card → scroll → end card reel (MP4 needs ffmpeg; otherwise WebM).
 
 Send progress (art direction, first section screenshots, motion pass). An hour of silence then a finished site
 is worse than three check-ins.
@@ -71,6 +84,10 @@ Fail a gate → fix it, don't hide it. (`--ignore-host <cdn>` only for hosts you
 **A. Visual.** Nothing clipped, overlapping or cut mid-word; headings don't orphan one word; images not
 stretched; sections look designed at both widths, not just stacked. Compare side by side with the reference
 screenshots: same visual system?
+
+**A2. Design lint.** Run `python3 tools/design_lint.py <target> --out qa/lint`: accent under 10% of the
+viewport, no more than one pinned section visible at once, no transition or `@keyframes` animating
+`top/left/width/height/margin`, no finite motion over 1.4 s. Fix the cause; don't raise the budgets.
 
 **B. Console clean.** Zero errors and zero failed requests (404 fonts/images, CORS). `qa.py` lists them.
 
@@ -93,6 +110,8 @@ pinned sections shorter on mobile, menu works.
 
 ## 5. Rules
 
+- **Sound is opt-in.** Any audio (UI sound kit, background music) ships **muted by default** with a visible
+  toggle; one sound at a time; peaks under 0.2. Never autoplay.
 - **Never deploy, publish, push to a public repo, or post anything in the owner's name without asking first.**
   Show screenshots / a local preview and wait for an explicit yes.
 - **When the human gives a reference, match the reference's visual system** (palette, type, spacing, motion
@@ -109,7 +128,14 @@ pinned sections shorter on mobile, menu works.
 SKILL.md            craft: approach, motion principles, layout map, art direction
 recipes/INDEX.md    every recipe: when to use, weight, dependencies
 recipes/<name>/     index.html (live demo) + README.md (when/how) + prompt.md (copy-ready prompt)
-templates/          starter pages that combine recipes (landing, portfolio)
-tools/qa.py         screenshot + QA gate runner (playwright)
+templates/          starter pages that combine recipes (landing, portfolio, event, product-launch)
+tools/qa.py         screenshot + QA gate runner; --record writes a scroll MP4/WebM
+tools/design_lint.py accent budget, pinned sections, layout animation, duration gates
+tools/frames.py     video (ffmpeg) or built-in turntable → WebP frame sequence + poster
+tools/style_ref.py  reference URL/screenshot → DESIGN.md tokens (palette, type, radii)
+tools/treatments.py three art directions (A/B/C) as DESIGN.md files
+tools/trailer.py     15 s site trailer: title card + scroll-through + end card (MP4 with ffmpeg)
+tools/sfx.py        renders the UI sound kit to WAV (the WebAudio version is assets/ui-sound.js)
+assets/ui-sound.js  procedural WebAudio sound kit, muted by default
 index.html, app.js, styles.css, assets/   the Motion Field showcase site itself
 ```

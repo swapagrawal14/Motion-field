@@ -20,6 +20,9 @@ Why: people remember the moment the page responded to them. Decoration they skip
 1. **Steal the system, not the pixels.** From each reference, extract palette, type scale, spacing rhythm, radii,
    imagery style and motion language. Rebuild with those rules and the human's own content.
 2. **One art direction, written down** (`DESIGN.md`) before any code: tokens as CSS variables, 3–5 named moves.
+   No reference yet? Run `python3 tools/treatments.py --name <slug> --brief "..."` to generate three art
+   directions, show the human the three `DESIGN.md` files and wait for a letter. Have a reference?
+   `python3 tools/style_ref.py <url-or-screenshot> --out DESIGN.md` reads its palette, type ladder and radii.
 3. **Static first, motion second.** Layout and copy must work with zero JS. Motion is a layer on top.
 4. **One big moment per screen.** A pinned hero, a horizontal gallery, a 3D wall: pick one per viewport and
    keep everything around it quiet (opacity + short translate, 400–700 ms).
@@ -39,16 +42,19 @@ Why: people remember the moment the page responded to them. Decoration they skip
   meaning, no pointer parallax. Offscreen → paused.
 - **Performance.** Animate `transform`/`opacity`/`filter` only; `will-change` sparingly; one rAF loop; one WebGL
   context per page where possible; DPR ≤ 2.
+- **Sound is opt-in.** Muted by default, a visible toggle, one sound at a time, peaks under 0.2. Never autoplay.
 
 ## Layout map (sections and the move that fits them)
 | Section | Job | Good moves (recipe) |
 |---|---|---|
-| Hero | promise + one CTA in 3 seconds | pinned hero shrink, three.js hero object, shader background, letter stagger, text scramble |
+| Hero | promise + one CTA in 3 seconds | pinned hero shrink, scroll-scrub video hero, three.js hero object, shader background, letter stagger, text scramble |
 | Logos / proof | trust | infinite marquee (pause on hover) |
 | Features | what it does | blur reveal, card tilt, hover pulse, SVG path draw linking steps |
 | Showcase / work | show, don't tell | horizontal scroll section, 3D tilted card wall, image hover distortion |
 | Story / process | sequence | scroll drift, SVG path draw, pinned steps with progress rail |
 | Interactive toy | delight, memorable | pointer parallax, shaders, field cursor |
+| Guide / explainer | host the page | acting mascot (4 poses), page transition between chapters |
+| Anywhere | feedback you can hear | UI sound kit — muted by default, opt-in toggle |
 | Pricing / CTA | decide | magnetic button, hover pulse; keep calm and legible |
 | Footer | wrap up | big wordmark with slow parallax |
 | Between pages | continuity | page transition |
@@ -60,6 +66,8 @@ Why: people remember the moment the page responded to them. Decoration they skip
 - **Imagery:** one prompt core reused for every image ("<subject>, <medium>, <lighting>, <palette>, <composition>"),
   first good image as reference for the rest. No mixed styles.
 - **Grid:** 12 columns, max-width 1200–1320 px, section padding `clamp(64px, 10vw, 160px)`.
+- **Three treatments, then one.** Before a big build, present three art directions (midnight / paper / pop) and
+  let the human pick. Building all three is waste; building one without a choice is a guess.
 
 ## Honest limits (tell the human)
 - AI images drift; check the set side by side and regenerate outliers.
