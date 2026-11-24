@@ -27,7 +27,9 @@ import functools
 import http.server
 import json
 import os
+import shutil
 import socket
+import subprocess
 import sys
 import threading
 import time
@@ -250,6 +252,40 @@ def measure_load(browser, url, args) -> dict:
             "largest_bytes": big[0][0] if big else 0}
 
 
+# ---------------------------------------------------------------- scroll recording
+def record_scroll(browser, url, dest: Path, args) -> str:
+    """Record a top-to-bottom scroll-through as WebM (converted to MP4 when ffmpeg exists)."""
+    tmp = dest.parent / (dest.stem + "-video")
+    tmp.mkdir(parents=True, exist_ok=True)
+    ctx = browser.new_context(viewport={"width": 1440, "height": 900}, device_scale_factor=1,
+                              record_video_dir=str(tmp), record_video_size={"width": 1440, "height": 900})
+    page = ctx.new_page()
+    page.goto(url, wait_until="load", timeout=args.timeout * 1000)
+    page.wait_for_timeout(1500)
+    total = page.evaluate("() => Math.max(0, document.documentElement.scrollHeight - innerHeight)")
+    steps = 120
+    for i in range(steps + 1):
+        page.evaluate("""y => {
+          if (window.lenis && window.lenis.scrollTo) window.lenis.scrollTo(y, { immediate: true });
+          else window.scrollTo({ top: y, behavior: 'instant' });
+        }""", total * i / steps)
+        page.wait_for_timeout(110)
+    page.wait_for_timeout(900)
+    video = page.video
+    ctx.close()
+    src = Path(video.path()) if video else None
+    if not src or not src.exists():
+        return ""
+    if shutil.which("ffmpeg") and dest.suffix.lower() == ".mp4":
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(src),
+                        "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "23", str(dest)], check=False)
+        if dest.exists():
+            src.unlink(missing_ok=True)
+            return str(dest)
+    shutil.move(str(src), str(dest.with_suffix(".webm")))
+    return str(dest.with_suffix(".webm"))
+
+
 # ---------------------------------------------------------------- contact sheet
 def contact_sheet(passes: list, out: Path):
     try:
@@ -372,6 +408,7 @@ def main():
     ap.add_argument("--timeout", type=int, default=30, help="navigation timeout in seconds (default 30)")
     ap.add_argument("--lcp-budget", type=float, default=2.5, help="LCP budget in seconds (default 2.5)")
     ap.add_argument("--weight-budget", type=float, default=2.5, help="page weight budget in MB (default 2.5)")
+    ap.add_argument("--record", metavar="FILE", help="also record a top-to-bottom scroll video (mp4 if ffmpeg, else webm)")
     args = ap.parse_args()
 
     IGNORE_HOSTS.extend(args.ignore_host)
@@ -400,6 +437,10 @@ def main():
                 passes.append(run_pass(browser, url, f"{label}-reduced", size, REDUCED_POSITIONS, out, args, reduced=True))
         print("· load metrics" + (" (throttled)" if args.throttle else ""), flush=True)
         load = measure_load(browser, url, args)
+        recorded = ""
+        if args.record:
+            print("· recording scroll", flush=True)
+            recorded = record_scroll(browser, url, Path(args.record), args)
         browser.close()
     if httpd:
         httpd.shutdown()
@@ -413,7 +454,7 @@ def main():
     for g in gates:
         print(f"  {'PASS' if g['ok'] else ('WARN' if g['warn_only'] else 'FAIL')}  {g['gate']}  {g['detail']}")
     print(f"\n{'All gates pass.' if report['ok'] else 'Gates failing.'}  Report: {out / 'report.md'}"
-          + (f"  Contact sheet: {sheet}" if sheet else ""))
+          + (f"  Contact sheet: {sheet}" if sheet else "") + (f"  Video: {recorded}" if recorded else ""))
     if any(p.get("load_error") for p in passes) or load.get("error"):
         sys.exit(2)
     sys.exit(0 if report["ok"] else 1)
