@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motion Gallery — scroll, hover and pointer studies in one page</title>
+<meta name="description" content="Motion Field gallery template: a Pinterest-style image board with scroll reveals, six hover treatments, a sticky hover-preview list, a pinned horizontal strip and a micro-interaction lab.">
+<meta name="theme-color" content="#f2efe6">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23f2efe6'/%3E%3Ccircle cx='11' cy='16' r='6' fill='%23151512'/%3E%3Ccircle cx='22' cy='16' r='6' fill='%23d5ff3f'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap">
+<script>(() => {
+  const root = document.documentElement, mq = matchMedia("(prefers-reduced-motion: reduce)");
+  let forced = null;
+  const apply = () => {
+    const on = forced === null ? mq.matches : forced;
+    root.classList.toggle("reduce-motion", on);
+    document.dispatchEvent(new CustomEvent("motionchange", { detail: { reduced: on } }));
+  };
+  mq.addEventListener ? mq.addEventListener("change", apply) : mq.addListener(apply);
+  window.MotionPref = { set(v) { forced = v; apply(); }, get reduced() { return root.classList.contains("reduce-motion"); } };
+  root.classList.toggle("reduce-motion", mq.matches);
+})();</script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<a class="skip" href="#board">Skip to the board</a>
+<div class="progress" aria-hidden="true"><i data-progress></i></div>
+<div class="cursor" aria-hidden="true"><span class="cursor__ring"></span><span class="cursor__dot"></span><span class="cursor__label"></span></div>
+
+<header class="nav">
+  <a class="nav__brand" href="#top"><b>Motion</b><i>Gallery</i></a>
+  <nav class="nav__links" aria-label="Sections">
+    <a href="#board" data-scramble>Board</a>
+    <a href="#types" data-scramble>Types</a>
+    <a href="#lab" data-scramble>Lab</a>
+  </nav>
+  <div class="nav__tools">
+    <button class="sound" type="button" data-sfx-toggle data-sfx-hover="tick" aria-pressed="false">
+      <span class="sound__dot"></span><span class="sound__label">Sound</span><span class="sound__state" data-sfx-status>muted</span>
+    </button>
+    <a class="nav__cta" href="#lab" data-magnetic>Try the lab</a>
+  </div>
+</header>
+
+<main id="top">
+  <!-- ================= hero ================= -->
+  <section class="hero">
+    <div class="hero__glow" aria-hidden="true"></div>
+    <div class="wrap">
+      <p class="eyebrow" data-reveal><span class="dot"></span> 12 studies · 6 hover treatments · 0 libraries</p>
+      <h1 class="hero__title">
+        <span class="line"><span data-mask>Scroll is the</span></span>
+        <span class="line"><span data-mask><em>interface.</em></span></span>
+      </h1>
+      <div class="hero__row">
+        <p class="lede" data-reveal>A board of images that react to the hand and the scroll. Hover anything. Everything here is vanilla CSS and JS — copy a card, keep the motion.</p>
+        <div class="hero__actions" data-reveal>
+          <a class="btn" href="#board" data-magnetic data-cursor="View">Open the board <span class="btn__arrow" aria-hidden="true">↓</span></a>
+          <a class="btn btn--ghost" href="#types" data-magnetic data-cursor="View">See the types</a>
+        </div>
+      </div>
+    </div>
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker__track">
+        <span>scroll reveal</span><span>hover tilt</span><span>magnetic pull</span><span>letter stagger</span><span>pointer parallax</span><span>pinned horizontal</span><span>custom cursor</span><span>text scramble</span>
+        <span>scroll reveal</span><span>hover tilt</span><span>magnetic pull</span><span>letter stagger</span><span>pointer parallax</span><span>pinned horizontal</span><span>custom cursor</span><span>text scramble</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= board ================= -->
+  <section class="board" id="board">
+    <div class="wrap">
+      <div class="board__head">
+        <div>
+          <p class="eyebrow" data-reveal>The board</p>
+          <h2 class="h2" data-reveal>Twelve objects, <em>six behaviours.</em></h2>
+        </div>
+        <div class="chips" role="group" aria-label="Filter the board" data-reveal>
+          <button class="chip is-on" type="button" data-filter="all" data-sfx="pop">All</button>
+          <button class="chip" type="button" data-filter="light" data-sfx="pop">Light</button>
+          <button class="chip" type="button" data-filter="glass" data-sfx="pop">Glass</button>
+          <button class="chip" type="button" data-filter="clay" data-sfx="pop">Clay</button>
+        </div>
+      </div>
+
+      <div class="masonry" id="masonry">
+        <article class="pin" data-cat="light" data-fx="zoom" data-cursor="View" data-h="0">
+          <figure class="pin__media"><img src="assets/ring.webp" alt="A polished chrome torus floating over a lilac gradient" width="640" height="800" loading="eager"><span class="pin__glare" aria-hidden="true"></span></figure>
+          <div class="pin__meta"><span class="mono">01 · Light</span><h3>Chrome study</h3></div>
+        </article>
+        <article class="pin" data-cat="clay" data-fx="tilt" data-cursor="View" data-h="1">
+          <figure class="pin__media"><img src="assets/blob.webp" alt="A glossy lime clay character with two dot eyes" width="640" height="800" loading="lazy"><span class="pin__glare" aria-hidden="true"></span></figure>
+          <div class="pin__meta"><span class="mono">02 · Clay</span><h3>Mascot, acting</h3></div>
+        </article>
+        <article class="pin" data-cat="glass" data-fx="desat" data-cursor="View" data-h="0">
+          <figure class="pin__media"><img src="assets/scrub.webp" alt="Five translucent glass panes catching different colours" width="640" height="800" loading="lazy"><span class="pin__glare" aria-hidden="true"></span></figure>
+          <div class="pin__meta"><span class="mono">03 · Glass</span><h3>Frame by frame</h3></div>
+        </article>
+        <article class="pin" data-cat="light" data-fx="caption" data-cursor="View" data-h="1">
+          <figure class="pin__media" data-caption="Open the study"><img src="assets/bloom.webp" alt="A translucent coral glass bloom with thin petals" width="640" height="800" loading="lazy"><span class="pin__glare" aria-hidden="true"></span></figure>
+          <div class="pin__meta"><span class="mono">04 · Light</span><h3>Soft-focus bloom</h3></div>
+        </article>
+        <article class="pin" data-cat="clay" data-fx="blur" data-cursor="View" data-h="1">
+          <figure class="pin__media"><img src="assets/ripple.webp" alt="A glass droplet falling into milk-white liquid" width="640" height="800" loading="lazy"><span class="pin__glare" aria-hidden="true"></span></figure>
+          <div class="pin__meta"><span class="mono">05 · Clay</span><h3>One droplet</h3></div>
+        </article>
+        <article class="pin" data-cat="clay" data-fx="zoom" data-cursor="View" data-h="0">
+          <figure class="pin__media"><img src="assets/stack.webp" alt="A stack of pastel ceramic discs" width="640" height="800" loading="lazy"><span class="pin__glare" aria-hidden="true"></span></figure>
+          <div class="pin__meta"><span class="mono">06 · Clay</span><h3>Stacked discs</h3></div>
+        </article>
+        <article class="pin" data-cat="light" data-fx="tilt" data-cursor="View" data-h="1">
+          <figure class="pin__media"><img src="assets/tide.webp" alt="A ribbon of water curling through a pale arch" width="640" height="800" loading="lazy"><span class="pin__glare" aria-hidden="true"></span></figure>
+          <div class="pin__meta"><span class="mono">07 · Light</span><h3>The tide turn</h3></div>
+        </article>
+        <article class="pin" data-cat="glass" data-fx="caption" data-cursor="View" data-h="0">
+          <figure class="pin__media" data-caption="Open the study"><img src="assets/orbit.webp" alt="A violet planet and a lime sphere with chrome orbit rings" width="640" height="800" loading="lazy"><span class="pin__glare" aria-hidden="true"></span></figure>
+          <div class="pin__meta"><span class="mono">08 · Glass</span><h3>Orbit, gently</h3></div>
+        </article>
+        <article class="pin" data-cat="light" data-fx="desat" data-cursor="View" data-h="0">
+          <figure class="pin__media"><img src="assets/reveal.webp" alt="A translucent coral flower opening on cream" width="640" height="800" loading="lazy"><span class="pin__glare" aria-hidden="true"></span></figure>
+          <div class="pin__meta"><span class="mono">09 · Light</span><h3>Reveal in focus</h3></div>
+        </article>
+        <article class="pin" data-cat="clay" data-fx="blur" data-cursor="View" data-h="1">
+          <figure class="pin__media"><img src="assets/pulse.webp" alt="A soft geometric shape glowing against a dark field" width="640" height="800" loading="lazy"><span class="pin__glare" aria-hidden="true"></span></figure>
+          <div class="pin__meta"><span class="mono">10 · Clay</span><h3>A page with a pulse</h3></div>
+        </article>
+        <article class="pin" data-cat="light" data-fx="zoom" data-cursor="View" data-h="0">
+          <figure class="pin__media"><img src="assets/type.webp" alt="Loose letterforms scattered in soft light" width="640" height="800" loading="lazy"><span class="pin__glare" aria-hidden="true"></span></figure>
+          <div class="pin__meta"><span class="mono">11 · Light</span><h3>Letters in the wind</h3></div>
+        </article>
+        <article class="pin" data-cat="glass" data-fx="tilt" data-cursor="View" data-h="1">
+          <figure class="pin__media"><img src="assets/path.webp" alt="A thin hand-drawn path curving through space" width="640" height="800" loading="lazy"><span class="pin__glare" aria-hidden="true"></span></figure>
+          <div class="pin__meta"><span class="mono">12 · Glass</span><h3>The long way round</h3></div>
+        </article>
+      </div>
+      <p class="board__hint mono" data-reveal>Hover a card — each one answers differently.</p>
+    </div>
+  </section>
+
+  <!-- ================= sticky hover-preview list ================= -->
+  <section class="types" id="types">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>Motion types</p>
+      <h2 class="h2" data-reveal>Hover a line, <em>see it move.</em></h2>
+      <ul class="typelist">
+        <li class="typelist__row" data-preview="assets/scrub.webp" data-cursor="View"><span class="mono">01</span><h3>Scroll scrub</h3><p>Frames tied to scroll position, scrubbed by the thumb.</p><span class="typelist__arrow" aria-hidden="true">→</span></li>
+        <li class="typelist__row" data-preview="assets/orbit.webp" data-cursor="View"><span class="mono">02</span><h3>Pointer parallax</h3><p>Layers drift at different depths as the hand moves.</p><span class="typelist__arrow" aria-hidden="true">→</span></li>
+        <li class="typelist__row" data-preview="assets/type.webp" data-cursor="View"><span class="mono">03</span><h3>Letter stagger</h3><p>A headline assembles itself, one glyph at a time.</p><span class="typelist__arrow" aria-hidden="true">→</span></li>
+        <li class="typelist__row" data-preview="assets/ripple.webp" data-cursor="View"><span class="mono">04</span><h3>Shader field</h3><p>A canvas surface that breathes behind the type.</p><span class="typelist__arrow" aria-hidden="true">→</span></li>
+        <li class="typelist__row" data-preview="assets/blob.webp" data-cursor="View"><span class="mono">05</span><h3>Magnetic pull</h3><p>A button that leans toward the cursor and springs home.</p><span class="typelist__arrow" aria-hidden="true">→</span></li>
+      </ul>
+    </div>
+    <div class="float" aria-hidden="true"><img data-float-img src="assets/scrub.webp" alt="" width="640" height="800"></div>
+  </section>
+
+  <!-- ================= pinned horizontal strip ================= -->
+  <section class="strip" id="strip">
+    <div class="strip__sticky">
+      <div class="wrap strip__head">
+        <p class="eyebrow eyebrow--light">Pinned horizontal</p>
+        <h2 class="h2 h2--light">One long band, <em>dragged by the scroll.</em></h2>
+      </div>
+      <div class="strip__track" data-strip>
+        <div class="strip__cell" style="--w:1"><img src="assets/ring.webp" alt="" loading="lazy"><span>Chrome</span></div>
+        <div class="strip__cell" style="--w:2"><img src="assets/bloom.webp" alt="" loading="lazy"><span>Bloom</span></div>
+        <div class="strip__cell" style="--w:1"><img src="assets/stack.webp" alt="" loading="lazy"><span>Stack</span></div>
+        <div class="strip__cell" style="--w:2"><img src="assets/tide.webp" alt="" loading="lazy"><span>Tide</span></div>
+        <div class="strip__cell" style="--w:1"><img src="assets/blob.webp" alt="" loading="lazy"><span>Mascot</span></div>
+        <div class="strip__cell" style="--w:2"><img src="assets/orbit.webp" alt="" loading="lazy"><span>Orbit</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= hover lab ================= -->
+  <section class="lab" id="lab">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>The lab</p>
+      <h2 class="h2" data-reveal>Six small <em>machines.</em></h2>
+      <p class="lab__lede" data-reveal>Each tile is one technique you can lift straight into a project. Hover, click, toggle — they are all live.</p>
+
+      <div class="lab__grid">
+        <article class="tile" data-reveal>
+          <span class="mono">01 · Pointer</span>
+          <h3>Magnetic pull</h3>
+          <button class="mag" type="button" data-magnetic data-sfx="pop"><span>Pull me</span></button>
+          <p>Button leans toward the hand, springs home on leave.</p>
+        </article>
+
+        <article class="tile" data-reveal>
+          <span class="mono">02 · 3D</span>
+          <h3>Flip card</h3>
+          <button class="flip" type="button" data-flip data-sfx="pop" aria-pressed="false">
+            <span class="flip__inner"><span class="flip__face flip__face--a">Front</span><span class="flip__face flip__face--b">Back</span></span>
+          </button>
+          <p>Click to turn. <code>rotateY</code> on the inner face only.</p>
+        </article>
+
+        <article class="tile" data-reveal>
+          <span class="mono">03 · Border</span>
+          <h3>Glare border</h3>
+          <button class="glow" type="button" data-glow><span>Hover</span></button>
+          <p>A conic highlight tracks the pointer around the edge.</p>
+        </article>
+
+        <article class="tile" data-reveal>
+          <span class="mono">04 · State</span>
+          <h3>Elastic toggle</h3>
+          <button class="switch" type="button" role="switch" aria-checked="false" data-switch data-sfx="tick"><span class="switch__knob"></span></button>
+          <p>The knob overshoots and settles — <code>cubic-bezier(.34,1.56,.64,1)</code>.</p>
+        </article>
+
+        <article class="tile" data-reveal>
+          <span class="mono">05 · Type</span>
+          <h3>Underline draw</h3>
+          <a class="draw" href="#lab" data-cursor="View">Read the notes</a>
+          <p><code>scaleX</code> from the left, reversed on exit.</p>
+        </article>
+
+        <article class="tile" data-reveal>
+          <span class="mono">06 · Text</span>
+          <h3>Scramble</h3>
+          <p class="scramble" data-scramble-hover>Hover to decode</p>
+          <p>Glyphs resolve left to right, then the real text lands.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= footer ================= -->
+  <footer class="foot">
+    <div class="wrap">
+      <p class="foot__kicker mono" data-reveal>Motion Field · templates/gallery</p>
+      <p class="foot__word" aria-hidden="true">GALLERY</p>
+      <div class="foot__cols">
+        <p>Image-led template. Every move here is <code>transform</code>, <code>opacity</code> or <code>filter</code> — never layout. Swap the twelve WebPs for your own work; the hover treatments are class-based (<code>data-fx</code>).</p>
+        <p class="mono">Vanilla HTML, CSS, JS · no build step · reduced-motion safe</p>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<script src="../../assets/ui-sound.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

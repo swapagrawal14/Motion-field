@@ -128,7 +128,7 @@ pinned sections shorter on mobile, menu works.
 SKILL.md            craft: approach, motion principles, layout map, art direction
 recipes/INDEX.md    every recipe: when to use, weight, dependencies
 recipes/<name>/     index.html (live demo) + README.md (when/how) + prompt.md (copy-ready prompt)
-templates/          starter pages that combine recipes (landing, portfolio, event, product-launch)
+templates/          starter pages that combine recipes (landing, portfolio, event, product-launch, gallery)
 tools/qa.py         screenshot + QA gate runner; --record writes a scroll MP4/WebM
 tools/design_lint.py accent budget, pinned sections, layout animation, duration gates
 tools/frames.py     video (ffmpeg) or built-in turntable → WebP frame sequence + poster

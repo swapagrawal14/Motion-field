@@ -15,9 +15,10 @@ magnetic buttons. Every move is plain vanilla HTML/CSS/JS with a reduced-motion 
 - **21 recipes** — every recipe in [recipes/INDEX.md](recipes/INDEX.md) now exists as a live demo (the 15 that
   were missing are built and QA'd), plus three new ones: [scroll-scrub video hero](recipes/scroll-scrub-hero/),
   [acting mascot](recipes/acting-mascot/) and the [UI sound kit](recipes/ui-sound/).
-- **4 templates** — [landing](templates/landing/), [portfolio](templates/portfolio/),
-  [event/invite](templates/event/) and [product-launch](templates/product-launch/); the last three are
-  vanilla (no libraries) and pass `tools/qa.py`.
+- **5 templates** — [landing](templates/landing/), [portfolio](templates/portfolio/),
+  [event/invite](templates/event/), [product-launch](templates/product-launch/) and
+  [gallery](templates/gallery/) (a Pinterest-style image board with six hover treatments, a custom
+  cursor and a pinned horizontal strip); the last four are vanilla (no libraries) and pass `tools/qa.py`.
 - **6 new tools** — `design_lint.py` (accent / pinned / layout / duration gates), `frames.py` (video → WebP
   frame sequence), `style_ref.py` (reference → DESIGN.md tokens), `treatments.py` (3 art directions),
   `sfx.py` (WAV previews) and `trailer.py` (15 s title card → scroll → end card). `qa.py` now takes
@@ -56,6 +57,7 @@ templates/landing/    polished product landing page built from the recipes
 templates/portfolio/  polished creative portfolio (vanilla, no libraries)
 templates/event/      one-page event / invite site (vanilla, no libraries)
 templates/product-launch/  launch page with hero, tour, spec switcher, roadmap, waitlist (vanilla)
+templates/gallery/    image board: masonry, six hover treatments, custom cursor, pinned strip (vanilla)
 tools/qa.py           Playwright QA runner: screenshots, contact sheet, console/network/overflow/LCP/weight;
                       --record writes a top-to-bottom scroll MP4 (WebM without ffmpeg)
 tools/design_lint.py  accent budget, pinned sections, layout animation and duration gates

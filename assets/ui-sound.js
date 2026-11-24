@@ -70,7 +70,9 @@
   const sync = () => {
     toggles().forEach((b) => {
       b.setAttribute("aria-pressed", String(!muted));
-      b.textContent = muted ? "Sound off" : "Sound on";
+      // only rewrite the label on a plain-text button — a toggle with a [data-sfx-status]
+      // child keeps its markup (icon + label + state)
+      if (!b.querySelector("[data-sfx-status]")) b.textContent = muted ? "Sound off" : "Sound on";
     });
     statuses().forEach((s) => (s.textContent = muted ? "muted" : "on"));
   };
