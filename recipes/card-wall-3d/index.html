@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D tilted card wall · Motion Field recipe</title>
+<meta name="description" content="A perspective-tilted wall of cards with columns drifting in opposite directions and a pointer tilt.">
+<meta name="theme-color" content="#070d1a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23070d1a'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%233fdcff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<script>(() => {
+  const root = document.documentElement, mq = matchMedia("(prefers-reduced-motion: reduce)");
+  let forced = null;
+  const apply = () => {
+    const on = forced === null ? mq.matches : forced;
+    root.classList.toggle("reduce-motion", on);
+    document.dispatchEvent(new CustomEvent("motionchange", { detail: { reduced: on } }));
+  };
+  mq.addEventListener ? mq.addEventListener("change", apply) : mq.addListener(apply);
+  window.MotionPref = { set(v) { forced = v; apply(); }, get reduced() { return root.classList.contains("reduce-motion"); } };
+  root.classList.toggle("reduce-motion", mq.matches);
+})();</script>
+<style>
+:root {
+  --bg: #070d1a; --bg-2: #0a1324; --surface: #0e1830; --surface-2: #132143;
+  --line: rgba(150, 180, 235, .14); --line-2: rgba(150, 180, 235, .26);
+  --ink: #e8eff9; --muted: #95a3bf; --faint: #5f6d8a;
+  --accent: #3fdcff; --accent-2: #8fefff; --accent-ink: #03141d;
+  --accent-glow: rgba(63, 220, 255, .35);
+  --ease-out: cubic-bezier(.16, 1, .3, 1); --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --sans: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --pad: clamp(20px, 4vw, 48px); --max: 1240px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { color-scheme: dark; background: var(--bg); -webkit-text-size-adjust: 100%; }
+body { min-height: 100vh; font: 16px/1.6 var(--sans); color: var(--ink); background:
+  radial-gradient(1100px 620px at 85% -8%, rgba(63, 220, 255, .09), transparent 62%),
+  radial-gradient(900px 540px at -10% 30%, rgba(70, 96, 255, .07), transparent 60%), var(--bg);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+img, svg, canvas { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--pad); }
+
+.mf-top { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px var(--pad); background: rgba(7, 13, 26, .72); backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%); border-bottom: 1px solid var(--line); }
+.mf-brand { display: flex; align-items: center; gap: 10px; color: var(--muted); text-decoration: none; min-width: 0; }
+.mf-brand b { color: var(--ink); font-weight: 500; }
+.mf-brand span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mf-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(63,220,255,.12), 0 0 14px var(--accent-glow); }
+.mf-toggle { flex: none; display: inline-flex; align-items: center; gap: 10px; padding: 7px 8px 7px 14px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line); cursor: pointer; color: var(--muted); transition: border-color .3s, color .3s; }
+.mf-toggle:hover { border-color: var(--line-2); color: var(--ink); }
+.mf-toggle__track { position: relative; width: 34px; height: 20px; border-radius: 999px; background: #1a2746; transition: background .3s; }
+.mf-toggle__track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); transition: transform .35s var(--ease-out), background .3s; }
+.mf-toggle[aria-pressed="true"] { color: var(--ink); }
+.mf-toggle[aria-pressed="true"] .mf-toggle__track { background: rgba(63,220,255,.28); }
+.mf-toggle[aria-pressed="true"] .mf-toggle__track::after { transform: translateX(14px); background: var(--accent); }
+
+.mf-intro { padding-block: clamp(56px, 9vw, 120px) clamp(28px, 4vw, 48px); }
+.mf-eyebrow { display: inline-flex; align-items: center; gap: 10px; color: var(--accent); }
+.mf-eyebrow::before { content: ""; width: 22px; height: 1px; background: currentColor; }
+.mf-h1 { margin-top: 18px; max-width: 17ch; font-size: clamp(42px, 6.2vw, 88px); line-height: .98; font-weight: 600; letter-spacing: -.045em; text-wrap: balance; }
+.mf-h1 .soft { display: block; color: var(--muted); font-weight: 500; }
+.mf-lede { margin-top: 22px; max-width: 58ch; color: var(--muted); font-size: clamp(16px, 1.4vw, 19px); }
+.mf-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.mf-pill { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font: 500 11.5px/1.4 var(--mono); letter-spacing: .06em; }
+.mf-pill--accent { color: var(--accent); border-color: rgba(63,220,255,.35); }
+
+.demo { margin-block: clamp(20px, 3vw, 40px); border: 1px solid var(--line); border-radius: 26px; background:
+  linear-gradient(180deg, rgba(19,33,67,.35), rgba(14,24,48,.15)); overflow: clip; }
+.stage { position: relative; min-height: clamp(380px, 56vh, 620px); display: grid; place-items: center; padding: clamp(28px, 5vw, 64px); isolation: isolate; }
+.stage__label { position: absolute; top: 16px; left: 18px; color: var(--faint); z-index: 2; }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; border: 1px solid var(--line-2);
+  background: rgba(19,33,67,.7); color: var(--ink); font-weight: 500; font-size: 14.5px; cursor: pointer;
+  transition: border-color .3s, background .3s, transform .3s var(--ease-out), color .3s; }
+.btn:hover { border-color: rgba(63,220,255,.5); background: rgba(24,44,84,.85); }
+.btn:active { transform: scale(.98); }
+.btn--accent { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.btn--accent:hover { background: var(--accent-2); }
+.btn--ghost { background: transparent; }
+.code { font-family: var(--mono); font-size: .9em; color: var(--accent-2); background: rgba(63,220,255,.08); border: 1px solid rgba(63,220,255,.16); border-radius: 6px; padding: .08em .38em; }
+
+.mf-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding-block: clamp(40px, 6vw, 80px) 32px; }
+.mf-note { padding: 24px; border-radius: 20px; background: linear-gradient(180deg, rgba(19,33,67,.55), rgba(14,24,48,.4)); border: 1px solid var(--line); }
+.mf-note h2 { margin: 12px 0 8px; font-size: 19px; letter-spacing: -.02em; font-weight: 600; }
+.mf-note p, .mf-note li { color: var(--muted); font-size: 14.5px; }
+.mf-note ul { padding-left: 18px; display: grid; gap: 4px; }
+.mf-note .mono { color: var(--faint); }
+.mf-foot { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 28px 40px; color: var(--faint); border-top: 1px solid var(--line); }
+@media (max-width: 860px) { .mf-notes { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .mf-toggle__label { display: none; } .mf-brand .mf-hide-sm { display: none; } }
+
+
+/* ===== recipe: card-wall-3d ===== */
+.wall { padding: clamp(20px, 4vw, 44px) 0 clamp(16px, 2vw, 24px); overflow: clip; }
+.wall__scene { height: clamp(420px, 60vh, 620px); display: grid; place-items: center; perspective: 1400px; }
+.wall__plane { display: flex; gap: clamp(12px, 1.6vw, 20px); transform-style: preserve-3d;
+  transform: rotateX(13deg) rotateY(-16deg) rotateZ(3deg); will-change: transform; }
+.wall__col { display: grid; gap: clamp(12px, 1.6vw, 20px); will-change: transform; }
+.wall__card { width: clamp(150px, 17vw, 224px); height: clamp(108px, 13vw, 160px); padding: 16px; border-radius: 18px;
+  border: 1px solid var(--line); background: linear-gradient(160deg, rgba(26, 45, 86, .85), rgba(12, 22, 44, .9));
+  display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; box-shadow: 0 20px 40px -28px #000; }
+.wall__card .mono { color: var(--accent); margin-bottom: auto; }
+.wall__card b { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
+.wall__card i { font-style: normal; color: var(--muted); font-size: 12px; }
+.wall__col:nth-child(2) .wall__card { background: linear-gradient(160deg, rgba(20, 62, 80, .8), rgba(10, 26, 40, .9)); }
+.wall__col:nth-child(3) .wall__card { background: linear-gradient(160deg, rgba(48, 34, 88, .8), rgba(18, 14, 38, .92)); }
+.wall__hint { text-align: center; color: var(--faint); padding-top: 14px; }
+@media (max-width: 700px) {
+  .wall__scene { height: auto; perspective: none; padding-block: 10px; }
+  .wall__plane { transform: none !important; }
+  .wall__col { transform: none !important; }
+  .wall__card { width: 30vw; height: 96px; padding: 10px; border-radius: 14px; }
+  .wall__card b { font-size: 12px; }
+  .wall__card i { display: none; }
+}
+</style>
+</head>
+<body>
+<a class="mf-top" href="../INDEX.md" aria-label="Motion Field recipes index">
+  <span class="mf-brand"><span class="mf-dot"></span><b>Motion Field</b><span class="mf-hide-sm">/ recipes / card-wall-3d</span></span>
+  <button class="mf-toggle" type="button" aria-pressed="false"><span class="mf-toggle__label mono">Reduce motion</span><span class="mf-toggle__track"></span></button>
+</a>
+<main>
+<header class="wrap mf-intro">
+  <p class="mono mf-eyebrow">Recipe 14 · Big moments</p>
+  <h1 class="mf-h1">A wall of work, <span class="soft">seen in perspective.</span></h1>
+  <p class="mf-lede">A perspective-tilted wall of preview cards: columns drift in opposite directions as you scroll and the whole plane leans a few degrees toward the pointer. Reads as depth, costs one transform.</p>
+  <div class="mf-meta"><span class="mf-pill mf-pill--accent">weight · small–medium</span>
+<span class="mf-pill">deps · none</span>
+<span class="mf-pill">trigger · scroll-linked + pointer</span>
+<span class="mf-pill">images optional</span></div>
+</header>
+
+<section class="wrap demo">
+  <div class="wall" data-wall>
+    <div class="wall__scene">
+      <div class="wall__plane">
+        <div class="wall__col" data-wall-col="0">
+          <article class="wall__card"><span class="mono">01</span><b>Night market</b><i>Scroll story</i></article>
+          <article class="wall__card"><span class="mono">04</span><b>Glass speaker</b><i>Product</i></article>
+          <article class="wall__card"><span class="mono">07</span><b>Old maps</b><i>Archive</i></article>
+        </div>
+        <div class="wall__col" data-wall-col="1">
+          <article class="wall__card"><span class="mono">02</span><b>Tide turn</b><i>Study</i></article>
+          <article class="wall__card"><span class="mono">05</span><b>Letters in the wind</b><i>Type</i></article>
+          <article class="wall__card"><span class="mono">08</span><b>Long way round</b><i>Path</i></article>
+        </div>
+        <div class="wall__col" data-wall-col="2">
+          <article class="wall__card"><span class="mono">03</span><b>Pulse page</b><i>Micro</i></article>
+          <article class="wall__card"><span class="mono">06</span><b>Soft focus</b><i>Reveal</i></article>
+          <article class="wall__card"><span class="mono">09</span><b>Shader field</b><i>WebGL</i></article>
+        </div>
+      </div>
+    </div>
+    <p class="wall__hint mono">Scroll · columns drift · move the pointer to lean the plane</p>
+  </div>
+</section>
+
+<section class="wrap mf-notes" aria-label="Notes">
+<article class="mf-note"><span class="mono">Use it for</span><h2>Showreels and work walls</h2><p>A portfolio's project index, a studio's capabilities wall, a product's feature mosaic. It says "there is a lot here" without a grid that looks like a spreadsheet.</p></article>
+<article class="mf-note"><span class="mono">Knobs</span><h2>Tune the wall</h2><ul><li><code>rotateX(13deg) rotateY(-16deg) rotateZ(3deg)</code> base plane</li><li><code>DIR = [1, -1, 1]</code> column drift directions</li><li><code>26px</code> drift distance</li><li><code>0.08</code> pointer lerp</li></ul></article>
+<article class="mf-note"><span class="mono">Reduced motion & perf</span><h2>A flat wall</h2><p>Below 700 px and under reduced motion the plane is flat and columns do not drift. Desktop writes only <code>transform</code> on one plane and three columns; the loop stops when settled.</p></article>
+</section>
+</main>
+<footer class="wrap mf-foot mono"><span>Motion Field · recipe / card-wall-3d</span><span>Vanilla HTML, CSS, JS · no build step</span></footer>
+<script>(() => {
+  const btn = document.querySelector(".mf-toggle");
+  if (!btn) return;
+  const sync = () => btn.setAttribute("aria-pressed", String(MotionPref.reduced));
+  btn.addEventListener("click", () => MotionPref.set(!MotionPref.reduced));
+  document.addEventListener("motionchange", sync); sync();
+})();</script>
+<script>
+
+(() => {
+  const wall = document.querySelector("[data-wall]");
+  if (!wall) return;
+  const scene = wall.querySelector(".wall__scene");
+  const plane = wall.querySelector(".wall__plane");
+  const cols = [...wall.querySelectorAll("[data-wall-col]")];
+  const DIR = [1, -1, 1];
+  let raf = 0, px = 0, py = 0, tx = 0, ty = 0, sp = 0;
+
+  const loop = () => {
+    raf = 0;
+    px += (tx - px) * 0.08; py += (ty - py) * 0.08; sp += (scrollTarget() - sp) * 0.1;
+    if (innerWidth <= 700 || MotionPref.reduced) { plane.style.transform = ""; cols.forEach((c) => (c.style.transform = "")); return; }
+    plane.style.transform = `rotateX(${(13 - py * 4).toFixed(2)}deg) rotateY(${(-16 + px * 5).toFixed(2)}deg) rotateZ(3deg)`;
+    cols.forEach((c, i) => { c.style.transform = `translate3d(0, ${(sp * DIR[i] * 26).toFixed(1)}px, 0)`; });
+    if (Math.abs(tx - px) > 0.02 || Math.abs(ty - py) > 0.02 || Math.abs(scrollTarget() - sp) > 0.002) raf = requestAnimationFrame(loop);
+  };
+  const scrollTarget = () => {
+    const r = scene.getBoundingClientRect(), vh = innerHeight;
+    return Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height))) - 0.5;
+  };
+  const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
+  scene.addEventListener("pointermove", (e) => {
+    if (MotionPref.reduced) return;
+    const r = scene.getBoundingClientRect();
+    tx = (e.clientX - r.left) / r.width - 0.5;
+    ty = (e.clientY - r.top) / r.height - 0.5;
+    kick();
+  }, { passive: true });
+  scene.addEventListener("pointerleave", () => { tx = 0; ty = 0; kick(); });
+  addEventListener("scroll", kick, { passive: true });
+  addEventListener("resize", kick, { passive: true });
+  document.addEventListener("motionchange", kick);
+  kick();
+})();
+
+</script>
+</body>
+</html>

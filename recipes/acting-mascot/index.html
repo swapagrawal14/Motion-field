@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acting mascot · Motion Field recipe</title>
+<meta name="description" content="A mascot that changes pose as you scroll through the page: idle, read, surprised, wave.">
+<meta name="theme-color" content="#070d1a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23070d1a'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%233fdcff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<script>(() => {
+  const root = document.documentElement, mq = matchMedia("(prefers-reduced-motion: reduce)");
+  let forced = null;
+  const apply = () => {
+    const on = forced === null ? mq.matches : forced;
+    root.classList.toggle("reduce-motion", on);
+    document.dispatchEvent(new CustomEvent("motionchange", { detail: { reduced: on } }));
+  };
+  mq.addEventListener ? mq.addEventListener("change", apply) : mq.addListener(apply);
+  window.MotionPref = { set(v) { forced = v; apply(); }, get reduced() { return root.classList.contains("reduce-motion"); } };
+  root.classList.toggle("reduce-motion", mq.matches);
+})();</script>
+<style>
+:root {
+  --bg: #070d1a; --bg-2: #0a1324; --surface: #0e1830; --surface-2: #132143;
+  --line: rgba(150, 180, 235, .14); --line-2: rgba(150, 180, 235, .26);
+  --ink: #e8eff9; --muted: #95a3bf; --faint: #5f6d8a;
+  --accent: #3fdcff; --accent-2: #8fefff; --accent-ink: #03141d;
+  --accent-glow: rgba(63, 220, 255, .35);
+  --ease-out: cubic-bezier(.16, 1, .3, 1); --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --sans: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --pad: clamp(20px, 4vw, 48px); --max: 1240px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { color-scheme: dark; background: var(--bg); -webkit-text-size-adjust: 100%; }
+body { min-height: 100vh; font: 16px/1.6 var(--sans); color: var(--ink); background:
+  radial-gradient(1100px 620px at 85% -8%, rgba(63, 220, 255, .09), transparent 62%),
+  radial-gradient(900px 540px at -10% 30%, rgba(70, 96, 255, .07), transparent 60%), var(--bg);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+img, svg, canvas { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--pad); }
+
+.mf-top { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px var(--pad); background: rgba(7, 13, 26, .72); backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%); border-bottom: 1px solid var(--line); }
+.mf-brand { display: flex; align-items: center; gap: 10px; color: var(--muted); text-decoration: none; min-width: 0; }
+.mf-brand b { color: var(--ink); font-weight: 500; }
+.mf-brand span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mf-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(63,220,255,.12), 0 0 14px var(--accent-glow); }
+.mf-toggle { flex: none; display: inline-flex; align-items: center; gap: 10px; padding: 7px 8px 7px 14px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line); cursor: pointer; color: var(--muted); transition: border-color .3s, color .3s; }
+.mf-toggle:hover { border-color: var(--line-2); color: var(--ink); }
+.mf-toggle__track { position: relative; width: 34px; height: 20px; border-radius: 999px; background: #1a2746; transition: background .3s; }
+.mf-toggle__track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); transition: transform .35s var(--ease-out), background .3s; }
+.mf-toggle[aria-pressed="true"] { color: var(--ink); }
+.mf-toggle[aria-pressed="true"] .mf-toggle__track { background: rgba(63,220,255,.28); }
+.mf-toggle[aria-pressed="true"] .mf-toggle__track::after { transform: translateX(14px); background: var(--accent); }
+
+.mf-intro { padding-block: clamp(56px, 9vw, 120px) clamp(28px, 4vw, 48px); }
+.mf-eyebrow { display: inline-flex; align-items: center; gap: 10px; color: var(--accent); }
+.mf-eyebrow::before { content: ""; width: 22px; height: 1px; background: currentColor; }
+.mf-h1 { margin-top: 18px; max-width: 17ch; font-size: clamp(42px, 6.2vw, 88px); line-height: .98; font-weight: 600; letter-spacing: -.045em; text-wrap: balance; }
+.mf-h1 .soft { display: block; color: var(--muted); font-weight: 500; }
+.mf-lede { margin-top: 22px; max-width: 58ch; color: var(--muted); font-size: clamp(16px, 1.4vw, 19px); }
+.mf-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.mf-pill { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font: 500 11.5px/1.4 var(--mono); letter-spacing: .06em; }
+.mf-pill--accent { color: var(--accent); border-color: rgba(63,220,255,.35); }
+
+.demo { margin-block: clamp(20px, 3vw, 40px); border: 1px solid var(--line); border-radius: 26px; background:
+  linear-gradient(180deg, rgba(19,33,67,.35), rgba(14,24,48,.15)); overflow: clip; }
+.stage { position: relative; min-height: clamp(380px, 56vh, 620px); display: grid; place-items: center; padding: clamp(28px, 5vw, 64px); isolation: isolate; }
+.stage__label { position: absolute; top: 16px; left: 18px; color: var(--faint); z-index: 2; }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; border: 1px solid var(--line-2);
+  background: rgba(19,33,67,.7); color: var(--ink); font-weight: 500; font-size: 14.5px; cursor: pointer;
+  transition: border-color .3s, background .3s, transform .3s var(--ease-out), color .3s; }
+.btn:hover { border-color: rgba(63,220,255,.5); background: rgba(24,44,84,.85); }
+.btn:active { transform: scale(.98); }
+.btn--accent { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.btn--accent:hover { background: var(--accent-2); }
+.btn--ghost { background: transparent; }
+.code { font-family: var(--mono); font-size: .9em; color: var(--accent-2); background: rgba(63,220,255,.08); border: 1px solid rgba(63,220,255,.16); border-radius: 6px; padding: .08em .38em; }
+
+.mf-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding-block: clamp(40px, 6vw, 80px) 32px; }
+.mf-note { padding: 24px; border-radius: 20px; background: linear-gradient(180deg, rgba(19,33,67,.55), rgba(14,24,48,.4)); border: 1px solid var(--line); }
+.mf-note h2 { margin: 12px 0 8px; font-size: 19px; letter-spacing: -.02em; font-weight: 600; }
+.mf-note p, .mf-note li { color: var(--muted); font-size: 14.5px; }
+.mf-note ul { padding-left: 18px; display: grid; gap: 4px; }
+.mf-note .mono { color: var(--faint); }
+.mf-foot { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 28px 40px; color: var(--faint); border-top: 1px solid var(--line); }
+@media (max-width: 860px) { .mf-notes { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .mf-toggle__label { display: none; } .mf-brand .mf-hide-sm { display: none; } }
+
+
+/* ===== recipe: acting-mascot ===== */
+.demo--mascot { overflow: visible; }
+.mascot-grid { display: grid; grid-template-columns: minmax(220px, 320px) minmax(0, 1fr); gap: clamp(20px, 4vw, 56px); padding: clamp(18px, 3vw, 36px); }
+.mascot-col { position: sticky; top: 84px; align-self: start; text-align: center; }
+.mascot { width: 100%; max-width: 300px; margin-inline: auto; filter: drop-shadow(0 30px 40px rgba(0, 0, 0, .35)); }
+.mascot__svg { width: 100%; height: auto; overflow: visible; }
+.mascot__rig, .mascot__arm, .mascot__leg, .mascot__head, .mascot__book, .eye, .brow, .mouth { transform-box: view-box; }
+.mascot__rig { transform-origin: 160px 360px; transition: transform .5s var(--spring); }
+.mascot__arm--l { transform-origin: 84px 186px; transition: transform .55s var(--spring); }
+.mascot__arm--r { transform-origin: 236px 186px; transition: transform .55s var(--spring); }
+.mascot__head { transform-origin: 160px 150px; transition: transform .5s var(--ease-out); }
+.mascot__book { opacity: 0; transform: translateY(18px); transform-origin: 160px 240px; transition: opacity .35s, transform .45s var(--ease-out); }
+.eye { transition: transform .35s var(--ease-out); }
+.brow { transition: transform .35s var(--ease-out); }
+.mouth { opacity: 0; transition: opacity .25s; }
+.mouth--smile { opacity: 1; }
+.mascot__eyes .eye { transform-origin: center; }
+.mascot__state { margin-top: 14px; color: var(--faint); }
+.mascot__picker { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; }
+.mascot__btn { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: rgba(19,33,67,.5); color: var(--muted);
+  font: 500 11.5px var(--mono); letter-spacing: .04em; cursor: pointer; transition: color .25s, border-color .25s, background .25s; }
+.mascot__btn:hover, .mascot__btn:focus-visible { color: var(--ink); border-color: var(--line-2); }
+.mascot__btn.is-on { color: var(--accent-ink); background: var(--accent); border-color: transparent; }
+
+/* poses */
+.mascot[data-pose="idle"] .mascot__arm--l { transform: rotate(7deg); }
+.mascot[data-pose="idle"] .mascot__arm--r { transform: rotate(-7deg); }
+.mascot[data-pose="idle"] .eye { animation: blink 5.2s infinite; }
+
+.mascot[data-pose="read"] .mascot__arm--l { transform: rotate(64deg); }
+.mascot[data-pose="read"] .mascot__arm--r { transform: rotate(-64deg); }
+.mascot[data-pose="read"] .mascot__book { opacity: 1; transform: translateY(0); }
+.mascot[data-pose="read"] .eye { transform: translateY(5px); }
+.mascot[data-pose="read"] .brow { transform: translateY(3px); }
+.mascot[data-pose="read"] .mouth--smile { opacity: 0; }
+.mascot[data-pose="read"] .mouth--small { opacity: 1; }
+.mascot[data-pose="read"] .mascot__head { transform: rotate(-3deg) translateY(3px); }
+
+.mascot[data-pose="surprised"] .mascot__arm--l { transform: rotate(148deg); }
+.mascot[data-pose="surprised"] .mascot__arm--r { transform: rotate(-148deg); }
+.mascot[data-pose="surprised"] .eye { transform: scale(1.4); }
+.mascot[data-pose="surprised"] .brow { transform: translateY(-7px); }
+.mascot[data-pose="surprised"] .mouth--smile { opacity: 0; }
+.mascot[data-pose="surprised"] .mouth--o { opacity: 1; }
+.mascot[data-pose="surprised"] .mascot__rig { transform: rotate(-2deg) translateY(-4px); }
+
+.mascot[data-pose="wave"] .mascot__arm--r { transform: rotate(-142deg); }
+.mascot[data-pose="wave"] .mascot__arm--l { transform: rotate(10deg); }
+.mascot[data-pose="wave"] .mascot__rig { transform: rotate(3deg); }
+.mascot[data-pose="wave"] .mascot__head { transform: rotate(4deg); }
+.mascot[data-pose="wave"] .mouth--smile { opacity: 1; }
+.mascot[data-pose="wave"] .brow--l { transform: translateY(-2px); }
+
+@keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 96%, 98% { transform: scaleY(.12); } }
+html.reduce-motion .mascot__rig, html.reduce-motion .mascot__arm, html.reduce-motion .mascot__head,
+html.reduce-motion .mascot__book, html.reduce-motion .eye, html.reduce-motion .brow { transition: none; }
+html.reduce-motion .mascot[data-pose="idle"] .eye { animation: none; }
+
+.mascot-content { display: grid; gap: clamp(40px, 8vw, 110px); padding-block: 10px; }
+.mascot-section { max-width: 46ch; }
+.mascot-section .mono { color: var(--accent); }
+.mascot-section h2 { margin-top: 10px; font-size: clamp(30px, 3.6vw, 48px); letter-spacing: -.04em; font-weight: 600; line-height: 1.05; }
+.mascot-section p { margin-top: 14px; color: var(--muted); }
+@media (max-width: 760px) {
+  .mascot-grid { grid-template-columns: 1fr; }
+  .mascot-col { position: sticky; top: 64px; z-index: 3; display: flex; align-items: center; gap: 14px; text-align: left;
+    padding: 6px 10px; border-radius: 18px; background: rgba(7, 13, 26, .78); backdrop-filter: blur(12px); border: 1px solid var(--line); }
+  .mascot { max-width: 86px; margin: 0; filter: drop-shadow(0 14px 18px rgba(0,0,0,.35)); }
+  .mascot__state { display: none; }
+  .mascot__picker { margin: 0 0 0 auto; justify-content: flex-end; }
+  .mascot__btn { padding: 6px 9px; font-size: 10.5px; }
+  .mascot-content { gap: 90px; padding-top: 26px; }
+}
+</style>
+</head>
+<body>
+<a class="mf-top" href="../INDEX.md" aria-label="Motion Field recipes index">
+  <span class="mf-brand"><span class="mf-dot"></span><b>Motion Field</b><span class="mf-hide-sm">/ recipes / acting-mascot</span></span>
+  <button class="mf-toggle" type="button" aria-pressed="false"><span class="mf-toggle__label mono">Reduce motion</span><span class="mf-toggle__track"></span></button>
+</a>
+<main>
+<header class="wrap mf-intro">
+  <p class="mono mf-eyebrow">Recipe 20 · Characters</p>
+  <h1 class="mf-h1">A guide who <span class="soft">acts</span> the page.</h1>
+  <p class="mf-lede">A painted-cutout mascot changes pose as you scroll: idle at the top, reading in the story, surprised at the reveal, waving at the end. Pose first, motion second — the same method as the video pose packs, in SVG.</p>
+  <div class="mf-meta"><span class="mf-pill mf-pill--accent">weight · small</span>
+<span class="mf-pill">deps · none</span>
+<span class="mf-pill">trigger · scroll + buttons</span>
+<span class="mf-pill">pose pack · 4 poses</span></div>
+</header>
+
+<section class="wrap demo demo--mascot">
+  <div class="mascot-grid">
+    <div class="mascot-col">
+      <div class="mascot" data-mascot data-pose="idle">
+<svg class="mascot__svg" viewBox="0 0 320 400" role="img" aria-label="A small round cyan mascot that changes pose as you read">
+  <defs>
+    <linearGradient id="mbody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a9f6ff"/><stop offset=".55" stop-color="#4fd6f2"/><stop offset="1" stop-color="#1e8fbe"/>
+    </linearGradient>
+    <linearGradient id="mbook" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff6e2"/><stop offset="1" stop-color="#e6d3ac"/>
+    </linearGradient>
+  </defs>
+  <ellipse class="mascot__shadow" cx="160" cy="376" rx="74" ry="12" fill="rgba(0,0,0,.35)"/>
+  <g class="mascot__rig">
+    <g class="mascot__leg mascot__leg--l"><rect x="118" y="292" width="28" height="62" rx="14" fill="url(#mbody)"/></g>
+    <g class="mascot__leg mascot__leg--r"><rect x="174" y="292" width="28" height="62" rx="14" fill="url(#mbody)"/></g>
+    <rect x="86" y="146" width="148" height="168" rx="74" fill="url(#mbody)"/>
+    <ellipse cx="160" cy="248" rx="46" ry="34" fill="rgba(255,255,255,.16)"/>
+    <g class="mascot__arm mascot__arm--l"><rect x="70" y="172" width="28" height="92" rx="14" fill="url(#mbody)"/></g>
+    <g class="mascot__arm mascot__arm--r"><rect x="222" y="172" width="28" height="92" rx="14" fill="url(#mbody)"/></g>
+    <g class="mascot__head">
+      <circle cx="160" cy="108" r="66" fill="url(#mbody)"/>
+      <circle cx="160" cy="108" r="66" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.5"/>
+      <g class="mascot__eyes">
+        <g class="eye eye--l"><circle cx="136" cy="102" r="8" fill="#05202e"/><circle cx="139" cy="99" r="2.6" fill="#fff"/></g>
+        <g class="eye eye--r"><circle cx="184" cy="102" r="8" fill="#05202e"/><circle cx="187" cy="99" r="2.6" fill="#fff"/></g>
+      </g>
+      <g class="mascot__brows">
+        <rect class="brow brow--l" x="122" y="80" width="28" height="5" rx="2.5" fill="#05202e"/>
+        <rect class="brow brow--r" x="170" y="80" width="28" height="5" rx="2.5" fill="#05202e"/>
+      </g>
+      <path class="mouth mouth--smile" d="M146 128 Q160 140 174 128" fill="none" stroke="#05202e" stroke-width="4" stroke-linecap="round"/>
+      <ellipse class="mouth mouth--o" cx="160" cy="132" rx="7" ry="9" fill="#05202e"/>
+      <path class="mouth mouth--small" d="M152 130 Q160 136 168 130" fill="none" stroke="#05202e" stroke-width="3.5" stroke-linecap="round"/>
+      <ellipse class="cheek cheek--l" cx="120" cy="122" rx="10" ry="5.5" fill="rgba(255,110,150,.35)"/>
+      <ellipse class="cheek cheek--r" cx="200" cy="122" rx="10" ry="5.5" fill="rgba(255,110,150,.35)"/>
+    </g>
+    <g class="mascot__book">
+      <rect x="94" y="194" width="132" height="92" rx="10" fill="url(#mbook)"/>
+      <path d="M160 198v84" stroke="#c9b48a" stroke-width="2"/>
+      <path d="M108 214h40M108 226h40M108 238h40M172 214h40M172 226h40M172 238h40" stroke="#b9a682" stroke-width="3" stroke-linecap="round"/>
+      <rect x="94" y="194" width="132" height="92" rx="10" fill="none" stroke="rgba(0,0,0,.12)"/>
+    </g>
+  </g>
+</svg>
+</div>
+      <p class="mono mascot__state" data-mascot-state>pose · idle</p>
+      <div class="mascot__picker" role="group" aria-label="Choose a pose">
+        <button class="mascot__btn is-on" type="button" data-pose-btn="idle">Idle</button>
+        <button class="mascot__btn" type="button" data-pose-btn="read">Read</button>
+        <button class="mascot__btn" type="button" data-pose-btn="surprised">Surprised</button>
+        <button class="mascot__btn" type="button" data-pose-btn="wave">Wave</button>
+      </div>
+    </div>
+    <div class="mascot-content">
+      <section class="mascot-section" data-mascot-pose="idle">
+        <p class="mono">00 · Idle</p>
+        <h2>Meet the guide.</h2>
+        <p>One character, four poses. The body is a painted cutout — no vector doll, no morphing face — so every pose reads as a deliberate drawing.</p>
+      </section>
+      <section class="mascot-section" data-mascot-pose="read">
+        <p class="mono">01 · Read</p>
+        <h2>Now it is reading.</h2>
+        <p>The book appears, the arms come forward and the eyes drop to the page. Pose changes are state, not animation: the next pose is already drawn.</p>
+      </section>
+      <section class="mascot-section" data-mascot-pose="surprised">
+        <p class="mono">02 · Surprised</p>
+        <h2>Something happened.</h2>
+        <p>Eyes widen, brows lift, the mouth goes round and both arms go up. Use this once per page, at the moment you actually have something to show.</p>
+      </section>
+      <section class="mascot-section" data-mascot-pose="wave">
+        <p class="mono">03 · Wave</p>
+        <h2>See you at the end.</h2>
+        <p>The arm goes up, the body leans and the smile widens. That is the whole performance — four poses, one page, no video file.</p>
+      </section>
+    </div>
+  </div>
+</section>
+
+<section class="wrap mf-notes" aria-label="Notes">
+<article class="mf-note"><span class="mono">Use it for</span><h2>A page with a host</h2><p>Guides, explainers, kids' products, onboarding — anywhere a character can point at the next thing. Keep it to one mascot and four or five poses; more becomes a cartoon, not a website.</p></article>
+<article class="mf-note"><span class="mono">Knobs</span><h2>Tune the acting</h2><ul><li><code>data-pose</code> on the mascot: idle / read / surprised / wave</li><li><code>rootMargin: -42% 0 -42%</code> sets the scroll trigger band</li><li><code>.5s var(--spring)</code> pose transitions</li><li><code>blink</code> 5.2 s loop</li></ul></article>
+<article class="mf-note"><span class="mono">Reduced motion & perf</span><h2>Instant poses</h2><p>Under reduced motion every transition is removed and the blink stops — the pose still changes instantly, because state is not motion. The SVG is one inline file, no images, no libraries.</p></article>
+</section>
+</main>
+<footer class="wrap mf-foot mono"><span>Motion Field · recipe / acting-mascot</span><span>Vanilla HTML, CSS, JS · no build step</span></footer>
+<script>(() => {
+  const btn = document.querySelector(".mf-toggle");
+  if (!btn) return;
+  const sync = () => btn.setAttribute("aria-pressed", String(MotionPref.reduced));
+  btn.addEventListener("click", () => MotionPref.set(!MotionPref.reduced));
+  document.addEventListener("motionchange", sync); sync();
+})();</script>
+<script>
+
+(() => {
+  const mascot = document.querySelector("[data-mascot]");
+  if (!mascot) return;
+  const state = document.querySelector("[data-mascot-state]");
+  const buttons = [...document.querySelectorAll("[data-pose-btn]")];
+  const sections = [...document.querySelectorAll("[data-mascot-pose]")];
+  const setPose = (pose) => {
+    mascot.dataset.pose = pose;
+    if (state) state.textContent = "pose · " + pose;
+    buttons.forEach((b) => b.classList.toggle("is-on", b.dataset.poseBtn === pose));
+  };
+  buttons.forEach((b) => b.addEventListener("click", () => setPose(b.dataset.poseBtn)));
+
+  if ("IntersectionObserver" in window && sections.length) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) setPose(e.target.dataset.mascotPose); });
+    }, { rootMargin: "-42% 0px -42% 0px", threshold: 0 });
+    sections.forEach((s) => io.observe(s));
+  }
+})();
+
+</script>
+</body>
+</html>

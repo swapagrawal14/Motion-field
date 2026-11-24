@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scroll-scrub video hero · Motion Field recipe</title>
+<meta name="description" content="A scroll-scrubbed video hero: scroll position picks a frame from a WebP sequence on canvas.">
+<meta name="theme-color" content="#070d1a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23070d1a'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%233fdcff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<script>(() => {
+  const root = document.documentElement, mq = matchMedia("(prefers-reduced-motion: reduce)");
+  let forced = null;
+  const apply = () => {
+    const on = forced === null ? mq.matches : forced;
+    root.classList.toggle("reduce-motion", on);
+    document.dispatchEvent(new CustomEvent("motionchange", { detail: { reduced: on } }));
+  };
+  mq.addEventListener ? mq.addEventListener("change", apply) : mq.addListener(apply);
+  window.MotionPref = { set(v) { forced = v; apply(); }, get reduced() { return root.classList.contains("reduce-motion"); } };
+  root.classList.toggle("reduce-motion", mq.matches);
+})();</script>
+<style>
+:root {
+  --bg: #070d1a; --bg-2: #0a1324; --surface: #0e1830; --surface-2: #132143;
+  --line: rgba(150, 180, 235, .14); --line-2: rgba(150, 180, 235, .26);
+  --ink: #e8eff9; --muted: #95a3bf; --faint: #5f6d8a;
+  --accent: #3fdcff; --accent-2: #8fefff; --accent-ink: #03141d;
+  --accent-glow: rgba(63, 220, 255, .35);
+  --ease-out: cubic-bezier(.16, 1, .3, 1); --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --sans: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --pad: clamp(20px, 4vw, 48px); --max: 1240px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { color-scheme: dark; background: var(--bg); -webkit-text-size-adjust: 100%; }
+body { min-height: 100vh; font: 16px/1.6 var(--sans); color: var(--ink); background:
+  radial-gradient(1100px 620px at 85% -8%, rgba(63, 220, 255, .09), transparent 62%),
+  radial-gradient(900px 540px at -10% 30%, rgba(70, 96, 255, .07), transparent 60%), var(--bg);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+img, svg, canvas { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--pad); }
+
+.mf-top { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px var(--pad); background: rgba(7, 13, 26, .72); backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%); border-bottom: 1px solid var(--line); }
+.mf-brand { display: flex; align-items: center; gap: 10px; color: var(--muted); text-decoration: none; min-width: 0; }
+.mf-brand b { color: var(--ink); font-weight: 500; }
+.mf-brand span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mf-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(63,220,255,.12), 0 0 14px var(--accent-glow); }
+.mf-toggle { flex: none; display: inline-flex; align-items: center; gap: 10px; padding: 7px 8px 7px 14px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line); cursor: pointer; color: var(--muted); transition: border-color .3s, color .3s; }
+.mf-toggle:hover { border-color: var(--line-2); color: var(--ink); }
+.mf-toggle__track { position: relative; width: 34px; height: 20px; border-radius: 999px; background: #1a2746; transition: background .3s; }
+.mf-toggle__track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); transition: transform .35s var(--ease-out), background .3s; }
+.mf-toggle[aria-pressed="true"] { color: var(--ink); }
+.mf-toggle[aria-pressed="true"] .mf-toggle__track { background: rgba(63,220,255,.28); }
+.mf-toggle[aria-pressed="true"] .mf-toggle__track::after { transform: translateX(14px); background: var(--accent); }
+
+.mf-intro { padding-block: clamp(56px, 9vw, 120px) clamp(28px, 4vw, 48px); }
+.mf-eyebrow { display: inline-flex; align-items: center; gap: 10px; color: var(--accent); }
+.mf-eyebrow::before { content: ""; width: 22px; height: 1px; background: currentColor; }
+.mf-h1 { margin-top: 18px; max-width: 17ch; font-size: clamp(42px, 6.2vw, 88px); line-height: .98; font-weight: 600; letter-spacing: -.045em; text-wrap: balance; }
+.mf-h1 .soft { display: block; color: var(--muted); font-weight: 500; }
+.mf-lede { margin-top: 22px; max-width: 58ch; color: var(--muted); font-size: clamp(16px, 1.4vw, 19px); }
+.mf-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.mf-pill { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font: 500 11.5px/1.4 var(--mono); letter-spacing: .06em; }
+.mf-pill--accent { color: var(--accent); border-color: rgba(63,220,255,.35); }
+
+.demo { margin-block: clamp(20px, 3vw, 40px); border: 1px solid var(--line); border-radius: 26px; background:
+  linear-gradient(180deg, rgba(19,33,67,.35), rgba(14,24,48,.15)); overflow: clip; }
+.stage { position: relative; min-height: clamp(380px, 56vh, 620px); display: grid; place-items: center; padding: clamp(28px, 5vw, 64px); isolation: isolate; }
+.stage__label { position: absolute; top: 16px; left: 18px; color: var(--faint); z-index: 2; }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; border: 1px solid var(--line-2);
+  background: rgba(19,33,67,.7); color: var(--ink); font-weight: 500; font-size: 14.5px; cursor: pointer;
+  transition: border-color .3s, background .3s, transform .3s var(--ease-out), color .3s; }
+.btn:hover { border-color: rgba(63,220,255,.5); background: rgba(24,44,84,.85); }
+.btn:active { transform: scale(.98); }
+.btn--accent { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.btn--accent:hover { background: var(--accent-2); }
+.btn--ghost { background: transparent; }
+.code { font-family: var(--mono); font-size: .9em; color: var(--accent-2); background: rgba(63,220,255,.08); border: 1px solid rgba(63,220,255,.16); border-radius: 6px; padding: .08em .38em; }
+
+.mf-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding-block: clamp(40px, 6vw, 80px) 32px; }
+.mf-note { padding: 24px; border-radius: 20px; background: linear-gradient(180deg, rgba(19,33,67,.55), rgba(14,24,48,.4)); border: 1px solid var(--line); }
+.mf-note h2 { margin: 12px 0 8px; font-size: 19px; letter-spacing: -.02em; font-weight: 600; }
+.mf-note p, .mf-note li { color: var(--muted); font-size: 14.5px; }
+.mf-note ul { padding-left: 18px; display: grid; gap: 4px; }
+.mf-note .mono { color: var(--faint); }
+.mf-foot { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 28px 40px; color: var(--faint); border-top: 1px solid var(--line); }
+@media (max-width: 860px) { .mf-notes { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .mf-toggle__label { display: none; } .mf-brand .mf-hide-sm { display: none; } }
+
+
+/* ===== recipe: scroll-scrub-hero ===== */
+.demo { margin-block: clamp(20px, 3vw, 40px); }
+.scrub { position: relative; height: 240vh; }
+.scrub__sticky { position: sticky; top: 0; height: 100vh; display: grid; place-items: center; overflow: clip; padding-block: 24px; }
+.scrub__stage { position: relative; width: min(100%, 1080px); aspect-ratio: 16 / 10; border-radius: 28px; overflow: hidden;
+  border: 1px solid var(--line); background: #070d1a; box-shadow: 0 40px 100px -50px #000; }
+.scrub__poster, .scrub__canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.scrub__canvas { z-index: 1; opacity: 0; transition: opacity .4s; }
+.scrub.is-ready .scrub__canvas { opacity: 1; }
+.scrub__scrim { position: absolute; inset: 0; z-index: 2; background: linear-gradient(180deg, rgba(7,13,26,.1), rgba(7,13,26,.72) 78%); }
+.scrub__copy { position: absolute; z-index: 3; left: clamp(20px, 4vw, 48px); bottom: clamp(20px, 4vw, 44px); max-width: 520px; }
+.scrub__copy .mono { color: var(--accent); }
+.scrub__copy h2 { margin-top: 10px; font-size: clamp(34px, 5vw, 64px); line-height: 1; letter-spacing: -.05em; font-weight: 600; }
+.scrub__copy h2 .soft { color: rgba(232, 239, 249, .6); font-weight: 500; }
+.scrub__copy p { margin-top: 12px; max-width: 38ch; color: rgba(232, 239, 249, .75); font-size: 15px; }
+.scrub__loader { margin-top: 18px; width: min(240px, 60%); height: 2px; border-radius: 999px; background: rgba(255,255,255,.18); overflow: hidden; }
+.scrub__loader span { display: block; height: 100%; width: 0%; background: var(--accent); transition: width .3s var(--ease-out); }
+.scrub.is-ready .scrub__loader { display: none; }
+.scrub__status { display: inline-block; margin-top: 8px; color: rgba(232, 239, 249, .5); }
+.scrub.is-ready .scrub__status { display: none; }
+.scrub__meter { position: absolute; z-index: 3; right: clamp(18px, 3vw, 32px); top: clamp(16px, 3vw, 26px); display: flex; align-items: baseline; gap: 10px;
+  padding: 8px 14px; border-radius: 999px; background: rgba(7, 13, 26, .55); border: 1px solid rgba(150, 180, 235, .2); backdrop-filter: blur(10px); }
+.scrub__meter .mono { color: var(--faint); }
+.scrub__meter b { font: 500 13px var(--mono); color: var(--accent); font-variant-numeric: tabular-nums; }
+.scrub-after { padding-block: clamp(56px, 9vw, 120px); text-align: center; }
+.scrub-after__big { font-size: clamp(26px, 4vw, 52px); letter-spacing: -.035em; font-weight: 500; max-width: 20ch; margin-inline: auto; text-wrap: balance; }
+.scrub-after__big .hl { color: var(--accent); }
+.scrub-after__note { margin-top: 16px; color: var(--faint); }
+@media (max-width: 860px) { .scrub { height: 190vh; } }
+@media (max-width: 700px) {
+  .scrub__stage { aspect-ratio: auto; height: min(62vh, 520px); }
+  .scrub__copy h2 { font-size: clamp(28px, 9vw, 40px); }
+  .scrub__copy p { display: none; }
+  .scrub__copy { bottom: 22px; }
+}
+@media (prefers-reduced-motion: reduce) { .scrub { height: auto; } .scrub__sticky { position: relative; height: auto; } }
+html.reduce-motion .scrub { height: auto; }
+html.reduce-motion .scrub__sticky { position: relative; height: auto; padding-block: 0; }
+html.reduce-motion .scrub__canvas { display: none; }
+html.reduce-motion .scrub__loader, html.reduce-motion .scrub__status { display: none; }
+</style>
+</head>
+<body>
+<a class="mf-top" href="../INDEX.md" aria-label="Motion Field recipes index">
+  <span class="mf-brand"><span class="mf-dot"></span><b>Motion Field</b><span class="mf-hide-sm">/ recipes / scroll-scrub-hero</span></span>
+  <button class="mf-toggle" type="button" aria-pressed="false"><span class="mf-toggle__label mono">Reduce motion</span><span class="mf-toggle__track"></span></button>
+</a>
+<main>
+<header class="wrap mf-intro">
+  <p class="mono mf-eyebrow">Recipe 19 · Scroll-scrub video</p>
+  <h1 class="mf-h1">The video only plays <span class="soft">when you scroll.</span></h1>
+  <p class="mf-lede">Apple-style frame scrubbing: a WebP sequence sits on a canvas and scroll position picks the frame. No video decode, no autoplay, and the poster is the very first frame.</p>
+  <div class="mf-meta"><span class="mf-pill mf-pill--accent">weight · medium (frames)</span>
+<span class="mf-pill">deps · none</span>
+<span class="mf-pill">trigger · scroll-linked (pinned)</span>
+<span class="mf-pill">works from file://</span></div>
+</header>
+
+<section class="wrap demo">
+  <div class="scrub" data-scrub>
+    <div class="scrub__sticky">
+      <div class="scrub__stage">
+        <img class="scrub__poster" src="frames/poster.webp" width="720" height="450" alt="A dotted torus turning in space">
+        <canvas class="scrub__canvas" width="720" height="450" aria-hidden="true"></canvas>
+        <div class="scrub__scrim" aria-hidden="true"></div>
+        <div class="scrub__copy">
+          <p class="mono">Scroll-scrub · 24 frames · WebP</p>
+          <h2>Scroll to<br><span class="soft">turn it.</span></h2>
+          <p>One frame per scroll position. The video never plays on its own — you do.</p>
+          <div class="scrub__loader" data-scrub-loader aria-hidden="true"><span></span></div>
+          <span class="mono scrub__status" data-scrub-status>loading frames 0 / 24</span>
+        </div>
+        <div class="scrub__meter"><span class="mono">Frame</span><b data-scrub-frame>01 / 24</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="wrap scrub-after">
+  <p class="scrub-after__big">Every scroll position is a <span class="hl">frame.</span></p>
+  <p class="scrub-after__note mono">Scroll back up and it turns the other way.</p>
+</section>
+
+<section class="wrap mf-notes" aria-label="Notes">
+<article class="mf-note"><span class="mono">Use it for</span><h2>A hero with a turntable</h2><p>Product spins, architectural walkthroughs, title sequences — anywhere a video would normally autoplay. The visitor scrubs it, which keeps it silent, cheap and reversible.</p></article>
+<article class="mf-note"><span class="mono">Knobs</span><h2>Tune the scrub</h2><ul><li><code>240vh</code> pin length (190 on mobile)</li><li><code>Math.round(p * (n - 1))</code> frame mapping</li><li><code>0.16</code> lerp for the scrub</li><li><code>frames/</code> 24 WebP frames + poster</li></ul></article>
+<article class="mf-note"><span class="mono">Reduced motion & perf</span><h2>A still poster</h2><p>With reduced motion the canvas is hidden and the poster stays. Frames are decoded once, drawn with <code>drawImage</code> only when the frame index changes, and the loop stops when settled. ~510 KB for 24 frames at 720×450.</p></article>
+</section>
+</main>
+<footer class="wrap mf-foot mono"><span>Motion Field · recipe / scroll-scrub-hero</span><span>Vanilla HTML, CSS, JS · no build step</span></footer>
+<script>(() => {
+  const btn = document.querySelector(".mf-toggle");
+  if (!btn) return;
+  const sync = () => btn.setAttribute("aria-pressed", String(MotionPref.reduced));
+  btn.addEventListener("click", () => MotionPref.set(!MotionPref.reduced));
+  document.addEventListener("motionchange", sync); sync();
+})();</script>
+<script>
+
+(() => {
+  const root = document.querySelector("[data-scrub]");
+  if (!root) return;
+  const FRAMES = ["f-000.webp", "f-001.webp", "f-002.webp", "f-003.webp", "f-004.webp", "f-005.webp", "f-006.webp", "f-007.webp", "f-008.webp", "f-009.webp", "f-010.webp", "f-011.webp", "f-012.webp", "f-013.webp", "f-014.webp", "f-015.webp", "f-016.webp", "f-017.webp", "f-018.webp", "f-019.webp", "f-020.webp", "f-021.webp", "f-022.webp", "f-023.webp"];
+  const canvas = root.querySelector(".scrub__canvas");
+  const ctx = canvas.getContext("2d");
+  const loader = root.querySelector("[data-scrub-loader] span");
+  const status = root.querySelector("[data-scrub-status]");
+  const meter = root.querySelector("[data-scrub-frame]");
+  let imgs = [], loaded = 0, ready = false, current = -1, raf = 0, cur = 0;
+
+  const draw = (i) => {
+    if (i === current || !ready) return;
+    current = i;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(imgs[i], 0, 0, canvas.width, canvas.height);
+    if (meter) meter.textContent = String(i + 1).padStart(2, "0") + " / " + FRAMES.length;
+  };
+  FRAMES.forEach((src, i) => {
+    const im = new Image();
+    im.decoding = "async";
+    im.onload = () => {
+      loaded++;
+      if (loader) loader.style.width = (loaded / FRAMES.length * 100).toFixed(0) + "%";
+      if (status) status.textContent = "loading frames " + loaded + " / " + FRAMES.length;
+      if (loaded === FRAMES.length) {
+        ready = true;
+        root.classList.add("is-ready");
+        if (MotionPref.reduced) { canvas.style.display = "none"; return; }
+        draw(Math.round(cur * (FRAMES.length - 1)));
+      }
+    };
+    im.src = "frames/" + src;
+    imgs.push(im);
+  });
+
+  const target = () => {
+    if (MotionPref.reduced) return 0;
+    const r = root.getBoundingClientRect(), vh = innerHeight;
+    const span = r.height - vh;
+    return span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 0;
+  };
+  const loop = () => {
+    raf = 0;
+    const t = target();
+    cur += (t - cur) * (MotionPref.reduced ? 1 : 0.16);
+    if (Math.abs(t - cur) < 0.0005) cur = t;
+    draw(Math.round(cur * (FRAMES.length - 1)));
+    if (cur !== t) raf = requestAnimationFrame(loop);
+  };
+  const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
+  addEventListener("scroll", kick, { passive: true });
+  addEventListener("resize", kick, { passive: true });
+  document.addEventListener("motionchange", kick);
+  cur = target(); draw(Math.round(cur * (FRAMES.length - 1)));
+})();
+
+</script>
+</body>
+</html>

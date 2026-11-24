@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Image hover distortion · Motion Field recipe</title>
+<meta name="description" content="Images ripple through an animated SVG displacement filter on hover.">
+<meta name="theme-color" content="#070d1a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23070d1a'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%233fdcff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<script>(() => {
+  const root = document.documentElement, mq = matchMedia("(prefers-reduced-motion: reduce)");
+  let forced = null;
+  const apply = () => {
+    const on = forced === null ? mq.matches : forced;
+    root.classList.toggle("reduce-motion", on);
+    document.dispatchEvent(new CustomEvent("motionchange", { detail: { reduced: on } }));
+  };
+  mq.addEventListener ? mq.addEventListener("change", apply) : mq.addListener(apply);
+  window.MotionPref = { set(v) { forced = v; apply(); }, get reduced() { return root.classList.contains("reduce-motion"); } };
+  root.classList.toggle("reduce-motion", mq.matches);
+})();</script>
+<style>
+:root {
+  --bg: #070d1a; --bg-2: #0a1324; --surface: #0e1830; --surface-2: #132143;
+  --line: rgba(150, 180, 235, .14); --line-2: rgba(150, 180, 235, .26);
+  --ink: #e8eff9; --muted: #95a3bf; --faint: #5f6d8a;
+  --accent: #3fdcff; --accent-2: #8fefff; --accent-ink: #03141d;
+  --accent-glow: rgba(63, 220, 255, .35);
+  --ease-out: cubic-bezier(.16, 1, .3, 1); --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --sans: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --pad: clamp(20px, 4vw, 48px); --max: 1240px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { color-scheme: dark; background: var(--bg); -webkit-text-size-adjust: 100%; }
+body { min-height: 100vh; font: 16px/1.6 var(--sans); color: var(--ink); background:
+  radial-gradient(1100px 620px at 85% -8%, rgba(63, 220, 255, .09), transparent 62%),
+  radial-gradient(900px 540px at -10% 30%, rgba(70, 96, 255, .07), transparent 60%), var(--bg);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+img, svg, canvas { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--pad); }
+
+.mf-top { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px var(--pad); background: rgba(7, 13, 26, .72); backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%); border-bottom: 1px solid var(--line); }
+.mf-brand { display: flex; align-items: center; gap: 10px; color: var(--muted); text-decoration: none; min-width: 0; }
+.mf-brand b { color: var(--ink); font-weight: 500; }
+.mf-brand span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mf-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(63,220,255,.12), 0 0 14px var(--accent-glow); }
+.mf-toggle { flex: none; display: inline-flex; align-items: center; gap: 10px; padding: 7px 8px 7px 14px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line); cursor: pointer; color: var(--muted); transition: border-color .3s, color .3s; }
+.mf-toggle:hover { border-color: var(--line-2); color: var(--ink); }
+.mf-toggle__track { position: relative; width: 34px; height: 20px; border-radius: 999px; background: #1a2746; transition: background .3s; }
+.mf-toggle__track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); transition: transform .35s var(--ease-out), background .3s; }
+.mf-toggle[aria-pressed="true"] { color: var(--ink); }
+.mf-toggle[aria-pressed="true"] .mf-toggle__track { background: rgba(63,220,255,.28); }
+.mf-toggle[aria-pressed="true"] .mf-toggle__track::after { transform: translateX(14px); background: var(--accent); }
+
+.mf-intro { padding-block: clamp(56px, 9vw, 120px) clamp(28px, 4vw, 48px); }
+.mf-eyebrow { display: inline-flex; align-items: center; gap: 10px; color: var(--accent); }
+.mf-eyebrow::before { content: ""; width: 22px; height: 1px; background: currentColor; }
+.mf-h1 { margin-top: 18px; max-width: 17ch; font-size: clamp(42px, 6.2vw, 88px); line-height: .98; font-weight: 600; letter-spacing: -.045em; text-wrap: balance; }
+.mf-h1 .soft { display: block; color: var(--muted); font-weight: 500; }
+.mf-lede { margin-top: 22px; max-width: 58ch; color: var(--muted); font-size: clamp(16px, 1.4vw, 19px); }
+.mf-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.mf-pill { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font: 500 11.5px/1.4 var(--mono); letter-spacing: .06em; }
+.mf-pill--accent { color: var(--accent); border-color: rgba(63,220,255,.35); }
+
+.demo { margin-block: clamp(20px, 3vw, 40px); border: 1px solid var(--line); border-radius: 26px; background:
+  linear-gradient(180deg, rgba(19,33,67,.35), rgba(14,24,48,.15)); overflow: clip; }
+.stage { position: relative; min-height: clamp(380px, 56vh, 620px); display: grid; place-items: center; padding: clamp(28px, 5vw, 64px); isolation: isolate; }
+.stage__label { position: absolute; top: 16px; left: 18px; color: var(--faint); z-index: 2; }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; border: 1px solid var(--line-2);
+  background: rgba(19,33,67,.7); color: var(--ink); font-weight: 500; font-size: 14.5px; cursor: pointer;
+  transition: border-color .3s, background .3s, transform .3s var(--ease-out), color .3s; }
+.btn:hover { border-color: rgba(63,220,255,.5); background: rgba(24,44,84,.85); }
+.btn:active { transform: scale(.98); }
+.btn--accent { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.btn--accent:hover { background: var(--accent-2); }
+.btn--ghost { background: transparent; }
+.code { font-family: var(--mono); font-size: .9em; color: var(--accent-2); background: rgba(63,220,255,.08); border: 1px solid rgba(63,220,255,.16); border-radius: 6px; padding: .08em .38em; }
+
+.mf-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding-block: clamp(40px, 6vw, 80px) 32px; }
+.mf-note { padding: 24px; border-radius: 20px; background: linear-gradient(180deg, rgba(19,33,67,.55), rgba(14,24,48,.4)); border: 1px solid var(--line); }
+.mf-note h2 { margin: 12px 0 8px; font-size: 19px; letter-spacing: -.02em; font-weight: 600; }
+.mf-note p, .mf-note li { color: var(--muted); font-size: 14.5px; }
+.mf-note ul { padding-left: 18px; display: grid; gap: 4px; }
+.mf-note .mono { color: var(--faint); }
+.mf-foot { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 28px 40px; color: var(--faint); border-top: 1px solid var(--line); }
+@media (max-width: 860px) { .mf-notes { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .mf-toggle__label { display: none; } .mf-brand .mf-hide-sm { display: none; } }
+
+
+/* ===== recipe: image-hover-distortion ===== */
+.distort-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; padding: clamp(18px, 3vw, 36px); }
+.distort { position: relative; }
+.distort__img { height: clamp(180px, 26vw, 300px); border-radius: 20px; border: 1px solid var(--line); overflow: hidden;
+  filter: url(#warp); transition: transform .6s var(--ease-out); will-change: filter, transform; }
+.distort:hover .distort__img, .distort:focus-visible .distort__img { transform: scale(1.015); }
+.distort__img--a { background: radial-gradient(120% 100% at 20% 0%, #ffe3b8, #ff9d5c 30%, #b8452f 62%, #2a0f1a 100%); }
+.distort__img--b { background: radial-gradient(90% 80% at 60% 30%, #eaffff, #7fe6ff 28%, #2a8fd0 58%, #0b2b55 100%); }
+.distort__img--c { background: conic-gradient(from 220deg at 50% 40%, #0b1630, #3b2f8a, #c06bff, #3fdcff, #0b1630); }
+.distort figcaption { display: flex; align-items: baseline; gap: 10px; margin-top: 12px; }
+.distort figcaption .mono { color: var(--faint); }
+.distort figcaption b { font-weight: 500; font-size: 14.5px; }
+.distort:focus-visible { outline: none; }
+.distort:focus-visible .distort__img { outline: 2px solid var(--accent); outline-offset: 4px; }
+html.reduce-motion .distort__img { filter: none; }
+@media (max-width: 860px) { .distort-grid { grid-template-columns: 1fr; } .distort__img { height: 220px; } }
+</style>
+</head>
+<body>
+<a class="mf-top" href="../INDEX.md" aria-label="Motion Field recipes index">
+  <span class="mf-brand"><span class="mf-dot"></span><b>Motion Field</b><span class="mf-hide-sm">/ recipes / image-hover-distortion</span></span>
+  <button class="mf-toggle" type="button" aria-pressed="false"><span class="mf-toggle__label mono">Reduce motion</span><span class="mf-toggle__track"></span></button>
+</a>
+<main>
+<header class="wrap mf-intro">
+  <p class="mono mf-eyebrow">Recipe 16 · Big moments</p>
+  <h1 class="mf-h1">Images that <span class="soft">ripple</span> under the pointer.</h1>
+  <p class="mf-lede">On hover the image warps through an animated displacement map — the grain shifts, the edges breathe, then it settles. SVG filters keep it tiny; swap in a WebGL pass when you need it on a full grid.</p>
+  <div class="mf-meta"><span class="mf-pill mf-pill--accent">weight · small</span>
+<span class="mf-pill">deps · SVG filter (or WebGL)</span>
+<span class="mf-pill">trigger · hover</span>
+<span class="mf-pill">GPU filter</span></div>
+</header>
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <filter id="warp" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="8" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+<section class="wrap demo">
+  <div class="distort-grid">
+    <figure class="distort" data-distort tabindex="0">
+      <div class="distort__img distort__img--a" aria-hidden="true"></div>
+      <figcaption><span class="mono">01 · Hover</span><b>Dune, sideways</b></figcaption>
+    </figure>
+    <figure class="distort" data-distort tabindex="0">
+      <div class="distort__img distort__img--b" aria-hidden="true"></div>
+      <figcaption><span class="mono">02 · Hover</span><b>Pool at noon</b></figcaption>
+    </figure>
+    <figure class="distort" data-distort tabindex="0">
+      <div class="distort__img distort__img--c" aria-hidden="true"></div>
+      <figcaption><span class="mono">03 · Hover</span><b>Static, then not</b></figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="wrap mf-notes" aria-label="Notes">
+<article class="mf-note"><span class="mono">Use it for</span><h2>Work that should feel alive</h2><p>Portfolio covers, editorial cards, product photography. The warp is a texture, not a gimmick: keep it subtle (scale 20–30) and let it settle when the pointer leaves.</p></article>
+<article class="mf-note"><span class="mono">Knobs</span><h2>Tune the ripple</h2><ul><li><code>scale 0 → 26</code> displacement strength</li><li><code>baseFrequency 0.012 0.02</code> grain size</li><li><code>numOctaves 2</code> detail (1 = smoother)</li><li><code>0.12</code> lerp in/out</li></ul></article>
+<article class="mf-note"><span class="mono">Reduced motion & perf</span><h2>No filter, no cost</h2><p>With reduced motion the filter is removed entirely. The animation only runs while a figure is hovered or focused, and stops when it settles back to 0.</p></article>
+</section>
+</main>
+<footer class="wrap mf-foot mono"><span>Motion Field · recipe / image-hover-distortion</span><span>Vanilla HTML, CSS, JS · no build step</span></footer>
+<script>(() => {
+  const btn = document.querySelector(".mf-toggle");
+  if (!btn) return;
+  const sync = () => btn.setAttribute("aria-pressed", String(MotionPref.reduced));
+  btn.addEventListener("click", () => MotionPref.set(!MotionPref.reduced));
+  document.addEventListener("motionchange", sync); sync();
+})();</script>
+<script>
+
+(() => {
+  if (MotionPref.reduced) return;
+  const filter = document.getElementById("warp");
+  const map = filter?.querySelector("feDisplacementMap");
+  const turb = filter?.querySelector("feTurbulence");
+  if (!filter || !map) return;
+  document.querySelectorAll("[data-distort]").forEach((fig) => {
+    let raf = 0, cur = 0, target = 0, t0 = 0;
+    const tick = (now) => {
+      raf = 0;
+      cur += (target - cur) * 0.12;
+      if (Math.abs(target - cur) < 0.15) cur = target;
+      map.setAttribute("scale", cur.toFixed(2));
+      if (target > 0) turb.setAttribute("baseFrequency", (0.012 + Math.sin(now / 380) * 0.004).toFixed(4) + " " + (0.02 + Math.cos(now / 430) * 0.006).toFixed(4));
+      if (cur !== target || target > 0) raf = requestAnimationFrame(tick);
+    };
+    const kick = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    fig.addEventListener("pointerenter", () => { target = 26; kick(); });
+    fig.addEventListener("pointerleave", () => { target = 0; kick(); });
+    fig.addEventListener("focus", () => { target = 26; kick(); });
+    fig.addEventListener("blur", () => { target = 0; kick(); });
+  });
+})();
+
+</script>
+</body>
+</html>

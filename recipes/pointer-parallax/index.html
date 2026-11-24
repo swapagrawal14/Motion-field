@@ -92,7 +92,9 @@ a { color: inherit; }
   background: radial-gradient(120% 90% at 50% 110%, #12306b 0%, #0a1733 42%, #050a16 78%);
   box-shadow: 0 0 0 1px var(--line), 0 50px 100px -50px rgba(0, 0, 0, .9), inset 0 1px 0 rgba(255,255,255,.04); touch-action: pan-y; }
 .px-layer { position: absolute; inset: 0; pointer-events: none;
-  transform: translate3d(calc(var(--x) * var(--depth) * var(--unit)), calc(var(--y) * var(--depth) * var(--unit) * .75), 0); will-change: transform; }
+  transform: translate3d(calc(var(--x) * var(--depth) * var(--unit)), calc(var(--y) * var(--depth) * var(--unit) * .75), 0); }
+/* promote layers only while the pointer is over the stage — 11 permanent layers is a memory cost */
+.px-stage.is-live .px-layer { will-change: transform; }
 .px-stars { inset: -8%; background-repeat: repeat; }
 .px-stars--far { opacity: .55; background-image:
   radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 33% 72%, #cfefff 50%, transparent 51%),
@@ -130,7 +132,7 @@ a { color: inherit; }
 .px-readout b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
 .px-readout .px-mode { color: var(--accent); }
 .px-hint { margin-top: 16px; color: var(--faint); text-align: center; font-size: 11px; }
-.reduce-motion .px-layer { will-change: auto; }
+.reduce-motion .px-stage.is-live .px-layer { will-change: auto; }
 @media (max-width: 720px) {
   .px-stage { aspect-ratio: 4 / 5; --unit: 12px; }
   .px-planet i { width: 56%; top: 44%; }
@@ -209,6 +211,7 @@ a { color: inherit; }
     const start = () => { if (!raf && visible && !MotionPref.reduced) raf = requestAnimationFrame(frame); };
     const rest = () => { cancelAnimationFrame(raf); raf = 0; x = y = tx = ty = 0; stage.style.setProperty("--x", 0); stage.style.setProperty("--y", 0); if (rx) { rx.textContent = fmt(0); ry.textContent = fmt(0); } };
 
+    stage.addEventListener("pointerenter", () => stage.classList.add("is-live"));
     stage.addEventListener("pointermove", (e) => {
       if (e.pointerType === "touch") return;      // touch keeps the idle drift; no fighting the scroll
       const r = stage.getBoundingClientRect();
@@ -216,7 +219,7 @@ a { color: inherit; }
       if (!pointer && modeEl) modeEl.textContent = "following";
       pointer = true; start();
     }, { passive: true });
-    stage.addEventListener("pointerleave", () => { pointer = false; if (modeEl) modeEl.textContent = "idle drift"; });
+    stage.addEventListener("pointerleave", () => { pointer = false; stage.classList.remove("is-live"); if (modeEl) modeEl.textContent = "idle drift"; });
 
     if ("IntersectionObserver" in window) new IntersectionObserver(([e]) => { visible = e.isIntersecting; start(); }).observe(stage);
     document.addEventListener("visibilitychange", start);

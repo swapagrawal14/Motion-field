@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SVG path draw · Motion Field recipe</title>
+<meta name="description" content="An SVG path draws and retraces with scroll, lighting up the steps it reaches.">
+<meta name="theme-color" content="#070d1a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23070d1a'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%233fdcff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<script>(() => {
+  const root = document.documentElement, mq = matchMedia("(prefers-reduced-motion: reduce)");
+  let forced = null;
+  const apply = () => {
+    const on = forced === null ? mq.matches : forced;
+    root.classList.toggle("reduce-motion", on);
+    document.dispatchEvent(new CustomEvent("motionchange", { detail: { reduced: on } }));
+  };
+  mq.addEventListener ? mq.addEventListener("change", apply) : mq.addListener(apply);
+  window.MotionPref = { set(v) { forced = v; apply(); }, get reduced() { return root.classList.contains("reduce-motion"); } };
+  root.classList.toggle("reduce-motion", mq.matches);
+})();</script>
+<style>
+:root {
+  --bg: #070d1a; --bg-2: #0a1324; --surface: #0e1830; --surface-2: #132143;
+  --line: rgba(150, 180, 235, .14); --line-2: rgba(150, 180, 235, .26);
+  --ink: #e8eff9; --muted: #95a3bf; --faint: #5f6d8a;
+  --accent: #3fdcff; --accent-2: #8fefff; --accent-ink: #03141d;
+  --accent-glow: rgba(63, 220, 255, .35);
+  --ease-out: cubic-bezier(.16, 1, .3, 1); --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --sans: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --pad: clamp(20px, 4vw, 48px); --max: 1240px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { color-scheme: dark; background: var(--bg); -webkit-text-size-adjust: 100%; }
+body { min-height: 100vh; font: 16px/1.6 var(--sans); color: var(--ink); background:
+  radial-gradient(1100px 620px at 85% -8%, rgba(63, 220, 255, .09), transparent 62%),
+  radial-gradient(900px 540px at -10% 30%, rgba(70, 96, 255, .07), transparent 60%), var(--bg);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+img, svg, canvas { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--pad); }
+
+.mf-top { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px var(--pad); background: rgba(7, 13, 26, .72); backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%); border-bottom: 1px solid var(--line); }
+.mf-brand { display: flex; align-items: center; gap: 10px; color: var(--muted); text-decoration: none; min-width: 0; }
+.mf-brand b { color: var(--ink); font-weight: 500; }
+.mf-brand span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mf-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(63,220,255,.12), 0 0 14px var(--accent-glow); }
+.mf-toggle { flex: none; display: inline-flex; align-items: center; gap: 10px; padding: 7px 8px 7px 14px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line); cursor: pointer; color: var(--muted); transition: border-color .3s, color .3s; }
+.mf-toggle:hover { border-color: var(--line-2); color: var(--ink); }
+.mf-toggle__track { position: relative; width: 34px; height: 20px; border-radius: 999px; background: #1a2746; transition: background .3s; }
+.mf-toggle__track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); transition: transform .35s var(--ease-out), background .3s; }
+.mf-toggle[aria-pressed="true"] { color: var(--ink); }
+.mf-toggle[aria-pressed="true"] .mf-toggle__track { background: rgba(63,220,255,.28); }
+.mf-toggle[aria-pressed="true"] .mf-toggle__track::after { transform: translateX(14px); background: var(--accent); }
+
+.mf-intro { padding-block: clamp(56px, 9vw, 120px) clamp(28px, 4vw, 48px); }
+.mf-eyebrow { display: inline-flex; align-items: center; gap: 10px; color: var(--accent); }
+.mf-eyebrow::before { content: ""; width: 22px; height: 1px; background: currentColor; }
+.mf-h1 { margin-top: 18px; max-width: 17ch; font-size: clamp(42px, 6.2vw, 88px); line-height: .98; font-weight: 600; letter-spacing: -.045em; text-wrap: balance; }
+.mf-h1 .soft { display: block; color: var(--muted); font-weight: 500; }
+.mf-lede { margin-top: 22px; max-width: 58ch; color: var(--muted); font-size: clamp(16px, 1.4vw, 19px); }
+.mf-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.mf-pill { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font: 500 11.5px/1.4 var(--mono); letter-spacing: .06em; }
+.mf-pill--accent { color: var(--accent); border-color: rgba(63,220,255,.35); }
+
+.demo { margin-block: clamp(20px, 3vw, 40px); border: 1px solid var(--line); border-radius: 26px; background:
+  linear-gradient(180deg, rgba(19,33,67,.35), rgba(14,24,48,.15)); overflow: clip; }
+.stage { position: relative; min-height: clamp(380px, 56vh, 620px); display: grid; place-items: center; padding: clamp(28px, 5vw, 64px); isolation: isolate; }
+.stage__label { position: absolute; top: 16px; left: 18px; color: var(--faint); z-index: 2; }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; border: 1px solid var(--line-2);
+  background: rgba(19,33,67,.7); color: var(--ink); font-weight: 500; font-size: 14.5px; cursor: pointer;
+  transition: border-color .3s, background .3s, transform .3s var(--ease-out), color .3s; }
+.btn:hover { border-color: rgba(63,220,255,.5); background: rgba(24,44,84,.85); }
+.btn:active { transform: scale(.98); }
+.btn--accent { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.btn--accent:hover { background: var(--accent-2); }
+.btn--ghost { background: transparent; }
+.code { font-family: var(--mono); font-size: .9em; color: var(--accent-2); background: rgba(63,220,255,.08); border: 1px solid rgba(63,220,255,.16); border-radius: 6px; padding: .08em .38em; }
+
+.mf-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding-block: clamp(40px, 6vw, 80px) 32px; }
+.mf-note { padding: 24px; border-radius: 20px; background: linear-gradient(180deg, rgba(19,33,67,.55), rgba(14,24,48,.4)); border: 1px solid var(--line); }
+.mf-note h2 { margin: 12px 0 8px; font-size: 19px; letter-spacing: -.02em; font-weight: 600; }
+.mf-note p, .mf-note li { color: var(--muted); font-size: 14.5px; }
+.mf-note ul { padding-left: 18px; display: grid; gap: 4px; }
+.mf-note .mono { color: var(--faint); }
+.mf-foot { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 28px 40px; color: var(--faint); border-top: 1px solid var(--line); }
+@media (max-width: 860px) { .mf-notes { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .mf-toggle__label { display: none; } .mf-brand .mf-hide-sm { display: none; } }
+
+
+/* ===== recipe: svg-path-draw ===== */
+.stage--path { padding-block: clamp(24px, 4vw, 48px); }
+.path { width: 100%; max-width: 1000px; position: relative; }
+.path-svg { width: 100%; height: auto; overflow: visible; }
+.path-ghost { stroke: rgba(150, 180, 235, .16); stroke-width: 2; stroke-dasharray: 2 10; stroke-linecap: round; }
+.path-line { stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1;
+  filter: drop-shadow(0 0 10px rgba(63, 220, 255, .55)); }
+.path-node circle { fill: #0b1630; stroke: rgba(150, 180, 235, .4); stroke-width: 2; transition: fill .4s, stroke .4s, r .4s var(--ease-out); }
+.path-node text { fill: var(--faint); font: 500 15px var(--sans); letter-spacing: .02em; transition: fill .4s; }
+.path-node.is-on circle { fill: var(--accent); stroke: var(--accent); r: 9; }
+.path-node.is-on text { fill: var(--ink); }
+.path-meter { position: absolute; right: 0; bottom: -6px; display: flex; align-items: baseline; gap: 10px; color: var(--faint); }
+.path-meter b { font: 500 15px var(--mono); color: var(--accent); font-variant-numeric: tabular-nums; }
+.path-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 0 clamp(20px, 4vw, 40px) clamp(24px, 4vw, 44px); }
+.path-step { padding: 18px; border-radius: 16px; border: 1px solid var(--line); background: rgba(14, 24, 48, .45); transition: border-color .4s, background .4s, opacity .4s; opacity: .55; }
+.path-step.is-on { opacity: 1; border-color: rgba(63, 220, 255, .4); background: rgba(19, 33, 67, .6); }
+.path-step .mono { color: var(--faint); }
+.path-step h3 { margin: 6px 0 6px; font-size: 18px; font-weight: 600; }
+.path-step p { color: var(--muted); font-size: 14px; }
+@media (max-width: 860px) { .path-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .path-node text { font-size: 22px; } .path-step p { font-size: 13px; } }
+</style>
+</head>
+<body>
+<a class="mf-top" href="../INDEX.md" aria-label="Motion Field recipes index">
+  <span class="mf-brand"><span class="mf-dot"></span><b>Motion Field</b><span class="mf-hide-sm">/ recipes / svg-path-draw</span></span>
+  <button class="mf-toggle" type="button" aria-pressed="false"><span class="mf-toggle__label mono">Reduce motion</span><span class="mf-toggle__track"></span></button>
+</a>
+<main>
+<header class="wrap mf-intro">
+  <p class="mono mf-eyebrow">Recipe 05 · Scroll-linked & entrances</p>
+  <h1 class="mf-h1">Draw the line <span class="soft">with the scroll.</span></h1>
+  <p class="mf-lede">A single SVG path traces a journey between steps, and retraces when you scroll back. The stroke is scrubbed by scroll progress, the nodes light up as the line reaches them.</p>
+  <div class="mf-meta"><span class="mf-pill mf-pill--accent">weight · tiny</span>
+<span class="mf-pill">deps · none</span>
+<span class="mf-pill">trigger · scroll-linked</span>
+<span class="mf-pill">reversible</span></div>
+</header>
+
+<section class="wrap demo">
+  <div class="stage stage--path">
+    <span class="mono stage__label">Scroll-linked · the line draws with you</span>
+    <div class="path" data-path>
+      <svg class="path-svg" viewBox="0 0 1000 520" role="img" aria-label="A line connecting four steps: sketch, build, ship, learn">
+        <path class="path-ghost" d="M60 420C200 420 200 150 380 150S520 380 700 300S860 120 940 120" fill="none"/>
+        <path class="path-line" d="M60 420C200 420 200 150 380 150S520 380 700 300S860 120 940 120" pathLength="1" fill="none"/>
+        <g class="path-node" data-node="0" transform="translate(60 420)"><circle r="7"/><text y="34">Sketch</text></g>
+        <g class="path-node" data-node="1" transform="translate(380 150)"><circle r="7"/><text y="-20">Build</text></g>
+        <g class="path-node" data-node="2" transform="translate(700 300)"><circle r="7"/><text y="34">Ship</text></g>
+        <g class="path-node" data-node="3" transform="translate(940 120)"><circle r="7"/><text y="-20">Learn</text></g>
+      </svg>
+      <div class="path-meter"><span class="mono">Draw progress</span><b data-progress>0%</b></div>
+    </div>
+  </div>
+  <div class="path-steps">
+    <article class="path-step" data-step="0"><span class="mono">01</span><h3>Sketch</h3><p>One page, one promise. Write the sentence before you draw the layout.</p></article>
+    <article class="path-step" data-step="1"><span class="mono">02</span><h3>Build</h3><p>Static first at both widths. Motion is a pass, never the foundation.</p></article>
+    <article class="path-step" data-step="2"><span class="mono">03</span><h3>Ship</h3><p>Run the QA gates, look at the contact sheet, then show a human.</p></article>
+    <article class="path-step" data-step="3"><span class="mono">04</span><h3>Learn</h3><p>Watch where people stop. The next version starts there.</p></article>
+  </div>
+</section>
+
+<section class="wrap mf-notes" aria-label="Notes">
+<article class="mf-note"><span class="mono">Use it for</span><h2>Journeys and processes</h2><p>Timelines, how-it-works rails, onboarding steps, a story with a direction. The line gives the eye a path to follow between blocks that would otherwise be four disconnected cards.</p></article>
+<article class="mf-note"><span class="mono">Knobs</span><h2>Tune the draw</h2><ul><li><code>pathLength="1"</code> → dash math stays 0–1</li><li><code>0.9 / 0.55</code> in <code>target()</code> sets when it starts and how far it travels</li><li><code>cut[]</code> node thresholds (0.02, 0.34, 0.66, 0.99)</li><li><code>stroke-dasharray: 2 10</code> for the ghost line</li></ul></article>
+<article class="mf-note"><span class="mono">Reduced motion & perf</span><h2>One frame, no work</h2><p>With reduced motion the line is drawn completely and every step is lit. Only <code>stroke-dashoffset</code> changes per frame — no layout reads inside the loop except one rect per scroll event.</p></article>
+</section>
+</main>
+<footer class="wrap mf-foot mono"><span>Motion Field · recipe / svg-path-draw</span><span>Vanilla HTML, CSS, JS · no build step</span></footer>
+<script>(() => {
+  const btn = document.querySelector(".mf-toggle");
+  if (!btn) return;
+  const sync = () => btn.setAttribute("aria-pressed", String(MotionPref.reduced));
+  btn.addEventListener("click", () => MotionPref.set(!MotionPref.reduced));
+  document.addEventListener("motionchange", sync); sync();
+})();</script>
+<script>
+
+(() => {
+  const wrap = document.querySelector("[data-path]");
+  if (!wrap) return;
+  const line = wrap.querySelector(".path-line");
+  const nodes = [...wrap.querySelectorAll("[data-node]")];
+  const steps = [...document.querySelectorAll("[data-step]")];
+  const meter = wrap.querySelector("[data-progress]");
+  const cut = [0.02, 0.34, 0.66, 0.99];
+  let cur = 0, raf = 0;
+
+  const apply = (p) => {
+    line.style.strokeDashoffset = String(1 - p);
+    nodes.forEach((n, i) => n.classList.toggle("is-on", p >= cut[i] - 0.02));
+    steps.forEach((s, i) => s.classList.toggle("is-on", p >= cut[i] - 0.02));
+    if (meter) meter.textContent = Math.round(p * 100) + "%";
+  };
+  const target = () => {
+    if (MotionPref.reduced) return 1;
+    const r = wrap.getBoundingClientRect(), vh = innerHeight;
+    return Math.min(1, Math.max(0, (vh * 0.9 - r.top) / (r.height + vh * 0.55)));
+  };
+  const loop = () => {
+    raf = 0;
+    const t = target();
+    cur += (t - cur) * (MotionPref.reduced ? 1 : 0.12);
+    if (Math.abs(t - cur) < 0.001) cur = t;
+    apply(cur);
+    if (cur !== t) raf = requestAnimationFrame(loop);
+  };
+  const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
+  addEventListener("scroll", kick, { passive: true });
+  addEventListener("resize", kick, { passive: true });
+  document.addEventListener("motionchange", kick);
+  cur = target(); apply(cur);
+})();
+
+</script>
+</body>
+</html>
