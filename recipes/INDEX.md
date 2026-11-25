@@ -54,6 +54,7 @@ Weight: **tiny** < 3 KB JS, **small** < 10 KB, **heavy** = pulls a library. Vani
 | Recipe | Best for | Trigger | What it does | Weight | Deps |
 |---|---|---|---|---|---|
 | [**Acting mascot**](acting-mascot/) · [demo](acting-mascot/index.html) · [prompt](acting-mascot/prompt.md) | Guide / explainer | scroll + buttons | a painted-cutout mascot changes pose per section: idle, read, surprised, wave | small | none |
+| [**Expression cast (Chai Chalo)**](expression-cast/) · [demo](expression-cast/index.html) · [prompt](expression-cast/prompt.md) | Hero / brand mascots / storybook sites | time + scroll + hover + click | a cast of cutout characters blinks, sings and gasps by swapping aligned face patches (rigpop-forge packs); kettle-whistle chorus, CTA gasp, pour; directed trailer via promo.py | small (~560 KB art + fonts) | none |
 
 ## Pairing guide
 

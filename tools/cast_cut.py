@@ -24,17 +24,25 @@ except ImportError:  # pragma: no cover
     sys.exit("cast_cut.py needs numpy and Pillow: pip install numpy pillow")
 
 
-def key_out(src: Path, dest: Path, key: tuple[float, float, float], max_side: int, quality: int,
-            low: float = 28.0, high: float = 52.0, pad_pct: float = 0.03) -> tuple[int, int, int]:
-    im = Image.open(src).convert("RGB")
-    a = np.asarray(im).astype(np.float32)
+def key_array(im: "Image.Image", key: tuple[float, float, float] = (255, 0, 255),
+              low: float = 28.0, high: float = 52.0) -> "np.ndarray":
+    """Key a flat background out of a character image; return float RGBA (H, W, 4), alpha 0..1.
+
+    No crop, no resize: tools/expressions.py relies on every variant keeping its own canvas.
+    """
+    a = np.asarray(im.convert("RGB")).astype(np.float32)
     k = np.array(key, dtype=np.float32)
 
-    # magenta-ness: max(red, blue) - green. Robust to a slightly off key colour, a
-    # vignette or a haze, none of which a plain RGB distance survives.
     if key[1] < 90 and key[0] > 150 and key[2] > 150:
-        m = a.max(axis=2) - a[..., 1]
+        # magenta-ness: min(red, blue) - green. Robust to a slightly off key colour, a vignette or
+        # a haze. min (not max) matters: coral blush (#f37f73) and pink fur have high red but low
+        # blue, and a max(red, blue) score keys them half-transparent.
+        m = np.minimum(a[..., 0], a[..., 2]) - a[..., 1]
         alpha = 1.0 - np.clip((m - 60.0) / 60.0, 0.0, 1.0)
+        # unmix against the background the model actually painted (often #FD22F9, not #FF00FF)
+        bg = a[m > 150]
+        if len(bg) > 100:
+            k = np.median(bg, axis=0)
     else:
         dist = np.sqrt(((a - k) ** 2).sum(axis=2))
         alpha = np.clip((dist - low) / high, 0.0, 1.0)
@@ -43,8 +51,14 @@ def key_out(src: Path, dest: Path, key: tuple[float, float, float], max_side: in
     af = np.clip(alpha, 1e-3, 1.0)[..., None]
     unmixed = (a - (1 - af) * k) / af
     rgb = np.clip(np.where(af > 0.995, a, unmixed), 0, 255)
+    rgb = np.where(alpha[..., None] > 0.004, rgb, 0)
+    return np.dstack([rgb, alpha * 255]).astype(np.float32) / np.array([1, 1, 1, 255], np.float32)
 
-    cut = Image.fromarray(np.dstack([rgb, alpha * 255]).astype(np.uint8), "RGBA")
+
+def key_out(src: Path, dest: Path, key: tuple[float, float, float], max_side: int, quality: int,
+            low: float = 28.0, high: float = 52.0, pad_pct: float = 0.03) -> tuple[int, int, int]:
+    rgba = key_array(Image.open(src), key, low, high)
+    cut = Image.fromarray(np.dstack([rgba[..., :3], rgba[..., 3] * 255]).astype(np.uint8), "RGBA")
     bbox = cut.getchannel("A").point(lambda v: 255 if v > 128 else 0).getbbox()
     if not bbox:
         raise SystemExit(f"{src}: nothing left after keying — is --key the background colour?")

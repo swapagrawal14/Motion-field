@@ -108,7 +108,10 @@ class Director:
             lk["accent"] = p.evaluate(READ_TOKEN, [["--accent", "--brand", "--color-accent"], "_"]) or "#3fdcff"
         font = lk.get("font") or ""
         stack = (f'"{font}", ' if font else "") + '-apple-system, "Segoe UI", Inter, system-ui, sans-serif'
-        if font and lk.get("webfont", True):
+        # a face the page already ships (self-hosted @font-face) is used as is: no Google Fonts round trip,
+        # so cards keep the page's real type even where fonts.googleapis.com is blocked
+        on_page = bool(font) and p.evaluate("""f => [...document.fonts].some(ff => ff.family.replace(/["']/g, '') === f)""", font)
+        if font and lk.get("webfont", True) and not on_page:
             p.evaluate("""fam => new Promise(res => { const l = document.createElement('link'); l.rel = 'stylesheet';
               l.href = `https://fonts.googleapis.com/css2?family=${fam}:wght@500;600;700&display=swap`;
               l.onload = l.onerror = res; setTimeout(res, 3000); document.head.appendChild(l); })""", font.replace(" ", "+"))
@@ -125,7 +128,7 @@ class Director:
           document.documentElement.style.setProperty('--mf-cta-ink', ink);
         }""")
         if font:
-            p.evaluate("""f => Promise.race([document.fonts.load(`600 40px "${f}"`).catch(() => {}),
+            p.evaluate("""f => Promise.race([Promise.all([document.fonts.load(`400 40px "${f}"`), document.fonts.load(`600 40px "${f}"`)]).catch(() => {}),
                                           new Promise(r => setTimeout(r, 2500))])""", font)
 
     # ---- cards

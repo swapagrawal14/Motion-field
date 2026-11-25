@@ -19,6 +19,9 @@ magnetic buttons. Every move is plain vanilla HTML/CSS/JS with a reduced-motion 
 
 ## What's new in this update
 
+<p align="center"><a href="docs/showcase/chai-chalo.mp4"><img src="docs/showcase/chai-chalo.gif" alt="Chai Chalo: a storybook chai stall whose cast blinks, sings to the kettle whistle and gasps when you hover the order button" width="560"></a><br><sub>Chai Chalo, the new flagship recipe. Click for the full trailer with sound.</sub></p>
+
+- **Chai Chalo, the flagship [expression cast](recipes/expression-cast/)** — a desi chai stall whose cutout cast (Kettle Kaka, kulhad, samosa, jalebi, biscuit, Chotu Bhaiya) blinks, sings and gasps by swapping aligned face patches. New `tools/expressions.py` builds rigpop-forge packs, fonts are self-hosted in `assets/fonts/`, and `promo.py` directs a trailer instead of a plain scroll.
 - **22 recipes** — every recipe in [recipes/INDEX.md](recipes/INDEX.md) now exists as a live demo (the 15 that
   were missing are built and QA'd), plus three new ones: [scroll-scrub video hero](recipes/scroll-scrub-hero/),
   [acting mascot](recipes/acting-mascot/) and the [UI sound kit](recipes/ui-sound/).

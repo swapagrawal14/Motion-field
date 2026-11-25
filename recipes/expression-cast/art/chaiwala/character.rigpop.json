@@ -1,0 +1,104 @@
+{
+  "spec": 1,
+  "id": "chaiwala",
+  "name": "Chotu Bhaiya",
+  "author": "Swapnil Agrawal",
+  "license": "MIT",
+  "talk": {
+    "canvas": {
+      "w": 720,
+      "h": 720
+    },
+    "base": "talk/base.webp",
+    "files": {
+      "A": "talk/sing.webp",
+      "O": "talk/surprised.webp",
+      "E": "talk/sing.webp"
+    },
+    "patches": {
+      "A": {
+        "x": 277,
+        "y": 262,
+        "w": 126,
+        "h": 108
+      },
+      "O": {
+        "x": 244,
+        "y": 139,
+        "w": 185,
+        "h": 208
+      },
+      "E": {
+        "x": 277,
+        "y": 262,
+        "w": 126,
+        "h": 108
+      }
+    },
+    "bg": "#f2c75c"
+  },
+  "expressions": {
+    "neutral": {
+      "file": "talk/base.webp"
+    },
+    "sing": {
+      "file": "talk/sing.webp",
+      "rect": {
+        "x": 277,
+        "y": 262,
+        "w": 126,
+        "h": 108
+      }
+    },
+    "surprised": {
+      "file": "talk/surprised.webp",
+      "rect": {
+        "x": 244,
+        "y": 139,
+        "w": 185,
+        "h": 208
+      }
+    }
+  },
+  "motionField": {
+    "bleed": [
+      "bottom"
+    ],
+    "talkMap": "A and E = sing, O = surprised (expression faces, not true visemes)",
+    "align": {
+      "sing": {
+        "offsetPx": [
+          0.0,
+          0.0
+        ],
+        "residualPx": 0.0,
+        "bodyDriftPct": 0.0
+      },
+      "surprised": {
+        "offsetPx": [
+          0.0,
+          0.0
+        ],
+        "residualPx": 0.0,
+        "bodyDriftPct": 0.0
+      }
+    },
+    "source": {
+      "canvas": {
+        "w": 1024,
+        "h": 1024
+      },
+      "crop": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "scale": 0.7031
+    }
+  },
+  "style": {
+    "bible": "flat pastel cartoon, thick near-black outline, coral blush cheeks",
+    "palette": []
+  }
+}

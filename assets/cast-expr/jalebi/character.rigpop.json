@@ -1,0 +1,126 @@
+{
+  "spec": 1,
+  "id": "jalebi",
+  "name": "Jalebi Rani",
+  "author": "Swapnil Agrawal",
+  "license": "MIT",
+  "talk": {
+    "canvas": {
+      "w": 420,
+      "h": 419
+    },
+    "base": "talk/base.webp",
+    "files": {
+      "A": "talk/sing.webp",
+      "O": "talk/surprised.webp",
+      "E": "talk/sing.webp",
+      "blink": "talk/blink.webp"
+    },
+    "patches": {
+      "A": {
+        "x": 162,
+        "y": 187,
+        "w": 109,
+        "h": 93
+      },
+      "O": {
+        "x": 158,
+        "y": 178,
+        "w": 117,
+        "h": 89
+      },
+      "E": {
+        "x": 162,
+        "y": 187,
+        "w": 109,
+        "h": 93
+      },
+      "blink": {
+        "x": 163,
+        "y": 189,
+        "w": 108,
+        "h": 36
+      }
+    },
+    "bg": "#f6e3c4"
+  },
+  "expressions": {
+    "neutral": {
+      "file": "talk/base.webp"
+    },
+    "blink": {
+      "file": "talk/blink.webp",
+      "rect": {
+        "x": 163,
+        "y": 189,
+        "w": 108,
+        "h": 36
+      }
+    },
+    "sing": {
+      "file": "talk/sing.webp",
+      "rect": {
+        "x": 162,
+        "y": 187,
+        "w": 109,
+        "h": 93
+      }
+    },
+    "surprised": {
+      "file": "talk/surprised.webp",
+      "rect": {
+        "x": 158,
+        "y": 178,
+        "w": 117,
+        "h": 89
+      }
+    }
+  },
+  "motionField": {
+    "bleed": [],
+    "talkMap": "A and E = sing, O = surprised (expression faces, not true visemes)",
+    "align": {
+      "blink": {
+        "offsetPx": [
+          0.0,
+          0.0
+        ],
+        "residualPx": 0.0,
+        "bodyDriftPct": 0.0
+      },
+      "sing": {
+        "offsetPx": [
+          0.0,
+          0.0
+        ],
+        "residualPx": 0.0,
+        "bodyDriftPct": 0.0
+      },
+      "surprised": {
+        "offsetPx": [
+          0.0,
+          0.0
+        ],
+        "residualPx": 0.0,
+        "bodyDriftPct": 0.0
+      }
+    },
+    "source": {
+      "canvas": {
+        "w": 1024,
+        "h": 1024
+      },
+      "crop": [
+        63,
+        68,
+        954,
+        956
+      ],
+      "scale": 0.4714
+    }
+  },
+  "style": {
+    "bible": "flat pastel cartoon, thick near-black outline, coral blush cheeks",
+    "palette": []
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "spec": 1,
+  "id": "kettle",
+  "name": "Kettle Kaka",
+  "author": "Swapnil Agrawal",
+  "license": "MIT",
+  "talk": {
+    "canvas": {
+      "w": 879,
+      "h": 900
+    },
+    "base": "talk/base.webp",
+    "files": {
+      "A": "talk/sing.webp",
+      "O": "talk/surprised.webp",
+      "E": "talk/sing.webp",
+      "blink": "talk/blink.webp"
+    },
+    "patches": {
+      "A": {
+        "x": 429,
+        "y": 539,
+        "w": 361,
+        "h": 273
+      },
+      "O": {
+        "x": 405,
+        "y": 467,
+        "w": 407,
+        "h": 289
+      },
+      "E": {
+        "x": 429,
+        "y": 539,
+        "w": 361,
+        "h": 273
+      },
+      "blink": {
+        "x": 439,
+        "y": 559,
+        "w": 342,
+        "h": 91
+      }
+    },
+    "bg": "#f6e3c4"
+  },
+  "expressions": {
+    "neutral": {
+      "file": "talk/base.webp"
+    },
+    "blink": {
+      "file": "talk/blink.webp",
+      "rect": {
+        "x": 439,
+        "y": 559,
+        "w": 342,
+        "h": 91
+      }
+    },
+    "sing": {
+      "file": "talk/sing.webp",
+      "rect": {
+        "x": 429,
+        "y": 539,
+        "w": 361,
+        "h": 273
+      }
+    },
+    "surprised": {
+      "file": "talk/surprised.webp",
+      "rect": {
+        "x": 405,
+        "y": 467,
+        "w": 407,
+        "h": 289
+      }
+    }
+  },
+  "motionField": {
+    "bleed": [
+      "right",
+      "top"
+    ],
+    "talkMap": "A and E = sing, O = surprised (expression faces, not true visemes)",
+    "align": {
+      "blink": {
+        "offsetPx": [
+          0.0,
+          0.0
+        ],
+        "residualPx": 0.0,
+        "bodyDriftPct": 0.0
+      },
+      "sing": {
+        "offsetPx": [
+          0.0,
+          0.0
+        ],
+        "residualPx": 0.0,
+        "bodyDriftPct": 0.0
+      },
+      "surprised": {
+        "offsetPx": [
+          0.0,
+          0.0
+        ],
+        "residualPx": 0.0,
+        "bodyDriftPct": 0.0
+      }
+    },
+    "source": {
+      "canvas": {
+        "w": 1024,
+        "h": 1024
+      },
+      "crop": [
+        78,
+        0,
+        1024,
+        969
+      ],
+      "scale": 0.9288
+    }
+  },
+  "style": {
+    "bible": "flat pastel cartoon, thick near-black outline, coral blush cheeks",
+    "palette": []
+  }
+}
