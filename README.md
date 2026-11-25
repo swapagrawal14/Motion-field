@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/img/banner.webp" alt="Motion Field: give any AI agent this repo plus any brief and get a site that moves. A fanned wall of website cards in different styles (storybook cat, horror hallway, editorial, pop poster, shader, chai stall) gliding through glowing flow lines." width="100%"></p>
+
 # Motion Field — an agent skill for outstanding interactive motion websites
 
 > **AI agents: start with [AGENTS.md](AGENTS.md).** It is the whole loop: prerequisites, what to ask the human,
