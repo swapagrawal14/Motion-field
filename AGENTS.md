@@ -11,6 +11,31 @@ generic template with fade-ins sprinkled on.
 
 ---
 
+## 0. Triage the brief (60 seconds, before anything else)
+
+Run the planner on the one-line brief, then read its plan:
+
+```bash
+python3 tools/brief.py --brief "a pet playlist app for dog owners" --out PLAN.md
+```
+
+It picks a **register**, the starter template, a recipe shortlist and the one big moment, and it is
+deterministic — the same brief always gives the same plan. Then sanity-check the register yourself:
+
+| The brief smells like | Register | Palette | Type | Motion | Starter |
+|---|---|---|---|---|---|
+| Fintech, SaaS, devtools, "premium", "trust us" | **A · Midnight** | deep navy + one cyan | tight grotesque | slow lerp, pinned hero, card tilt | `templates/landing/` |
+| Editorial, clinic, restaurant, studio, "elegant", lots of words | **B · Paper** | off-white + ink + vermilion | serif display | soft reveals, path draws | `templates/portfolio/` |
+| Streetwear, music, festival, gaming, "loud", poster-like | **C · Pop** | near-black + acid lime | hard grotesque | scrambles, marquees, shaders | `templates/event/` |
+| Kids, pets, toys, food, mascot, learning, "cute", "fun" | **D · Sunny** | powder blue + cream + coral | chunky rounded (Baloo 2) | spring entrances, typewriter, ambient bob | `templates/landing/` + `recipes/character-scene/` |
+
+**The most common failure this repo exists to prevent:** a playful brief (pet app, kids brand, snack) built
+as a dark glass SaaS page because the agent only knows that register. If the brief has a face, a mascot or a
+child in it, it is D. Flat fills, thick outlines, overshoot springs, copy that talks like a person.
+
+If `brief.py` says the register is a coin flip, ask the human for one reference **before** building. One
+question, not a survey.
+
 ## 1. Prerequisites
 
 | Need | Why | Check |
@@ -89,6 +114,11 @@ screenshots: same visual system?
 viewport, no more than one pinned section visible at once, no transition or `@keyframes` animating
 `top/left/width/height/margin`, no finite motion over 1.4 s. Fix the cause; don't raise the budgets.
 
+**A3. Taste lint.** Run `python3 tools/taste_lint.py <target> --out qa/taste`. It catches the page that is
+technically fine and creatively empty: no webfont, no design tokens, barely any motion, six identical
+siblings in a row, lorem copy. Score under 60 = FAIL. A FAIL here is not a style opinion — it means the page
+would be mistaken for a template. Re-run the triage: usually the register is wrong, not the code.
+
 **B. Console clean.** Zero errors and zero failed requests (404 fonts/images, CORS). `qa.py` lists them.
 
 **C. No horizontal overflow** at 390 and 1440 (`scrollWidth <= innerWidth`). Marquees, tilted cards and
@@ -110,6 +140,12 @@ pinned sections shorter on mobile, menu works.
 
 ## 5. Rules
 
+- **Illustrations are generated cutouts, never inline SVG.** A character built out of `<circle>` and
+  `<path>` reads as clip-art next to a drawn one — and clients notice immediately. Generate the character on
+  a **flat magenta `#FF00FF`** background (no shadow, no ground), key it out with `tools/cast_cut.py`, ship a
+  transparent WebP under 40 KB, and give every image `width`/`height`/`alt`. SVG stays legitimate for icons,
+  logos, charts and stroke-drawn paths — just not for characters or art. See `assets/cast/README.md` and
+  `assets/mascot/README.md` for the exact prompt skeleton.
 - **Sound is opt-in.** Any audio (UI sound kit, background music) ships **muted by default** with a visible
   toggle; one sound at a time; peaks under 0.2. Never autoplay.
 - **Never deploy, publish, push to a public repo, or post anything in the owner's name without asking first.**
@@ -129,11 +165,14 @@ SKILL.md            craft: approach, motion principles, layout map, art directio
 recipes/INDEX.md    every recipe: when to use, weight, dependencies
 recipes/<name>/     index.html (live demo) + README.md (when/how) + prompt.md (copy-ready prompt)
 templates/          starter pages that combine recipes (landing, portfolio, event, product-launch, gallery)
+recipes/character-scene/  the storybook register: a cast takes the stage, typewriter headline, poke on hover
 tools/qa.py         screenshot + QA gate runner; --record writes a scroll MP4/WebM
+tools/brief.py      one-line brief -> register, template, recipes, one big moment (PLAN.md)
 tools/design_lint.py accent budget, pinned sections, layout animation, duration gates
+tools/taste_lint.py generic-page detector: type, tokens, motion, uniform grids, placeholder copy
 tools/frames.py     video (ffmpeg) or built-in turntable → WebP frame sequence + poster
 tools/style_ref.py  reference URL/screenshot → DESIGN.md tokens (palette, type, radii)
-tools/treatments.py three art directions (A/B/C) as DESIGN.md files
+tools/treatments.py four art directions (A/B/C/D) as DESIGN.md files
 tools/trailer.py     15 s site trailer: title card + scroll-through + end card (MP4 with ffmpeg)
 tools/sfx.py        renders the UI sound kit to WAV (the WebAudio version is assets/ui-sound.js)
 assets/ui-sound.js  procedural WebAudio sound kit, muted by default

@@ -12,7 +12,7 @@ magnetic buttons. Every move is plain vanilla HTML/CSS/JS with a reduced-motion 
 
 ## What's new in this update
 
-- **21 recipes** — every recipe in [recipes/INDEX.md](recipes/INDEX.md) now exists as a live demo (the 15 that
+- **22 recipes** — every recipe in [recipes/INDEX.md](recipes/INDEX.md) now exists as a live demo (the 15 that
   were missing are built and QA'd), plus three new ones: [scroll-scrub video hero](recipes/scroll-scrub-hero/),
   [acting mascot](recipes/acting-mascot/) and the [UI sound kit](recipes/ui-sound/).
 - **5 templates** — [landing](templates/landing/), [portfolio](templates/portfolio/),
@@ -24,6 +24,14 @@ magnetic buttons. Every move is plain vanilla HTML/CSS/JS with a reduced-motion 
   `sfx.py` (WAV previews) and `trailer.py` (15 s title card → scroll → end card). `qa.py` now takes
   `--record` to write a scroll video.
 - **`assets/ui-sound.js`** — procedural WebAudio pops, ticks, whooshes and chimes, **muted by default**.
+- **The storybook register** — [character-scene](recipes/character-scene/) (recipe 22) plus a fourth art
+  direction, **D · Sunny**, in `tools/treatments.py`. The cast is five **generated character cutouts**
+  (`assets/cast/*.webp`, 14–20 KB, transparent) — the video-reference look, not clip-art SVG. Spring
+  entrances, a typewriter headline, ambient bob and a poke on hover. `tools/cast_cut.py` keys any generated
+  character out of its flat background. Before this it was the one register the repo did not have.
+- **Agent triage** — `python3 tools/brief.py --brief "..."` turns a one-line brief into a build plan
+  (register → starter → recipes → one big moment), and `tools/taste_lint.py` fails the page that is
+  technically fine and creatively empty. Any agent, any brief, same plan.
 
 ## Use it with any agent
 
@@ -31,9 +39,11 @@ Paste this into your agent (swap the bracketed parts):
 
 ```text
 Read https://github.com/swapagrawal14/Motion-field — start with AGENTS.md, then SKILL.md and recipes/INDEX.md.
-Build me [a landing page for my dental clinic / a portfolio for my 3D work / ...].
+Brief: [a landing page for my dental clinic / a portfolio for my 3D work / a pet playlist app].
+Run `python3 tools/brief.py --brief "<my brief>"` first and tell me which register it picked and why.
 Reference I like: [https://example.com] — match its visual system, not my old look.
-Follow the pipeline, use the recipes, run tools/qa.py and fix every gate before showing me screenshots.
+Then follow the pipeline: pick the starter template, use the recipes, run tools/qa.py, tools/design_lint.py
+and tools/taste_lint.py, and fix every gate before showing me screenshots.
 Don't deploy or publish anything without asking me.
 ```
 
@@ -63,7 +73,10 @@ tools/qa.py           Playwright QA runner: screenshots, contact sheet, console/
 tools/design_lint.py  accent budget, pinned sections, layout animation and duration gates
 tools/frames.py       video (ffmpeg) or built-in turntable → WebP frame sequence + poster + manifest
 tools/style_ref.py    reference URL/screenshot → DESIGN.md tokens (palette, type, radii, image prompt)
-tools/treatments.py   three art directions (A · Midnight, B · Paper, C · Pop) as DESIGN.md files
+tools/brief.py        one-line brief -> register, starter template, recipe shortlist, the big moment
+tools/treatments.py   four art directions (A · Midnight, B · Paper, C · Pop, D · Sunny) as DESIGN.md files
+tools/taste_lint.py   generic-page detector (type, tokens, motion, uniform grids, placeholder copy)
+tools/cast_cut.py     generated character -> transparent WebP (chroma key + edge unmix + crop)
 tools/trailer.py      15 s site trailer: title card + scroll-through + end card (MP4 with ffmpeg)
 tools/sfx.py          renders the UI sound kit to WAV; assets/ui-sound.js is the WebAudio version
 assets/ui-sound.js    procedural WebAudio pops/ticks/whooshes, muted by default

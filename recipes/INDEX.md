@@ -34,6 +34,7 @@ Weight: **tiny** < 3 KB JS, **small** < 10 KB, **heavy** = pulls a library. Vani
 | [**Text scramble (Cipher)**](text-scramble/) · [demo](text-scramble/index.html) · [prompt](text-scramble/prompt.md) | Hero / labels / nav | entrance + hover | characters scramble then resolve into the real word | tiny | none |
 | [**WebGL shader background**](shader-background/) · [demo](shader-background/index.html) · [prompt](shader-background/prompt.md) | Hero / CTA backdrop | time (+ pointer) | full-bleed animated gradient/noise behind a hero; pauses offscreen, still frame on reduced motion | small | WebGL (no library) |
 | [**UI sound kit**](ui-sound/) · [demo](ui-sound/index.html) · [prompt](ui-sound/prompt.md) | Nav / CTA / forms | hover + click | procedural WebAudio pops, ticks, whooshes and chimes; **muted by default** | tiny | none |
+| [**Character scene**](character-scene/) · [demo](character-scene/index.html) · [prompt](character-scene/prompt.md) | Hero / kids / pets / brand mascot | entrance + hover | a cast of illustrated characters takes the stage one by one (spring + 85 ms stagger), typewriter headline, ambient bob + blink, poke reaction on hover | small | none |
 
 ## Big moments (one per screen)
 

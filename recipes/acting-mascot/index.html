@@ -105,58 +105,21 @@ a { color: inherit; }
 .mascot-grid { display: grid; grid-template-columns: minmax(220px, 320px) minmax(0, 1fr); gap: clamp(20px, 4vw, 56px); padding: clamp(18px, 3vw, 36px); }
 .mascot-col { position: sticky; top: 84px; align-self: start; text-align: center; }
 .mascot { width: 100%; max-width: 300px; margin-inline: auto; filter: drop-shadow(0 30px 40px rgba(0, 0, 0, .35)); }
-.mascot__svg { width: 100%; height: auto; overflow: visible; }
-.mascot__rig, .mascot__arm, .mascot__leg, .mascot__head, .mascot__book, .eye, .brow, .mouth { transform-box: view-box; }
-.mascot__rig { transform-origin: 160px 360px; transition: transform .5s var(--spring); }
-.mascot__arm--l { transform-origin: 84px 186px; transition: transform .55s var(--spring); }
-.mascot__arm--r { transform-origin: 236px 186px; transition: transform .55s var(--spring); }
-.mascot__head { transform-origin: 160px 150px; transition: transform .5s var(--ease-out); }
-.mascot__book { opacity: 0; transform: translateY(18px); transform-origin: 160px 240px; transition: opacity .35s, transform .45s var(--ease-out); }
-.eye { transition: transform .35s var(--ease-out); }
-.brow { transition: transform .35s var(--ease-out); }
-.mouth { opacity: 0; transition: opacity .25s; }
-.mouth--smile { opacity: 1; }
-.mascot__eyes .eye { transform-origin: center; }
-.mascot__state { margin-top: 14px; color: var(--faint); }
-.mascot__picker { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; }
-.mascot__btn { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: rgba(19,33,67,.5); color: var(--muted);
-  font: 500 11.5px var(--mono); letter-spacing: .04em; cursor: pointer; transition: color .25s, border-color .25s, background .25s; }
-.mascot__btn:hover, .mascot__btn:focus-visible { color: var(--ink); border-color: var(--line-2); }
-.mascot__btn.is-on { color: var(--accent-ink); background: var(--accent); border-color: transparent; }
+.mascot__art { position: relative; width: 100%; aspect-ratio: 466 / 456; }
+.mascot__pose { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+  opacity: 0; transform: scale(.94) translateY(8px);
+  transition: opacity .26s var(--ease-out), transform .5s var(--spring); }
+.mascot[data-pose="idle"] .mascot__pose--idle,
+.mascot[data-pose="read"] .mascot__pose--read,
+.mascot[data-pose="surprised"] .mascot__pose--surprised,
+.mascot[data-pose="wave"] .mascot__pose--wave { opacity: 1; transform: none; }
 
-/* poses */
-.mascot[data-pose="idle"] .mascot__arm--l { transform: rotate(7deg); }
-.mascot[data-pose="idle"] .mascot__arm--r { transform: rotate(-7deg); }
-.mascot[data-pose="idle"] .eye { animation: blink 5.2s infinite; }
+/* the idle pose keeps breathing so the character is never a frozen picture */
+.mascot[data-pose="idle"] .mascot__pose--idle { animation: mascot-breathe 4.6s ease-in-out infinite; }
+@keyframes mascot-breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.015); } }
 
-.mascot[data-pose="read"] .mascot__arm--l { transform: rotate(64deg); }
-.mascot[data-pose="read"] .mascot__arm--r { transform: rotate(-64deg); }
-.mascot[data-pose="read"] .mascot__book { opacity: 1; transform: translateY(0); }
-.mascot[data-pose="read"] .eye { transform: translateY(5px); }
-.mascot[data-pose="read"] .brow { transform: translateY(3px); }
-.mascot[data-pose="read"] .mouth--smile { opacity: 0; }
-.mascot[data-pose="read"] .mouth--small { opacity: 1; }
-.mascot[data-pose="read"] .mascot__head { transform: rotate(-3deg) translateY(3px); }
-
-.mascot[data-pose="surprised"] .mascot__arm--l { transform: rotate(148deg); }
-.mascot[data-pose="surprised"] .mascot__arm--r { transform: rotate(-148deg); }
-.mascot[data-pose="surprised"] .eye { transform: scale(1.4); }
-.mascot[data-pose="surprised"] .brow { transform: translateY(-7px); }
-.mascot[data-pose="surprised"] .mouth--smile { opacity: 0; }
-.mascot[data-pose="surprised"] .mouth--o { opacity: 1; }
-.mascot[data-pose="surprised"] .mascot__rig { transform: rotate(-2deg) translateY(-4px); }
-
-.mascot[data-pose="wave"] .mascot__arm--r { transform: rotate(-142deg); }
-.mascot[data-pose="wave"] .mascot__arm--l { transform: rotate(10deg); }
-.mascot[data-pose="wave"] .mascot__rig { transform: rotate(3deg); }
-.mascot[data-pose="wave"] .mascot__head { transform: rotate(4deg); }
-.mascot[data-pose="wave"] .mouth--smile { opacity: 1; }
-.mascot[data-pose="wave"] .brow--l { transform: translateY(-2px); }
-
-@keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 96%, 98% { transform: scaleY(.12); } }
-html.reduce-motion .mascot__rig, html.reduce-motion .mascot__arm, html.reduce-motion .mascot__head,
-html.reduce-motion .mascot__book, html.reduce-motion .eye, html.reduce-motion .brow { transition: none; }
-html.reduce-motion .mascot[data-pose="idle"] .eye { animation: none; }
+html.reduce-motion .mascot__pose { transition: none; }
+html.reduce-motion .mascot[data-pose="idle"] .mascot__pose--idle { animation: none; }
 
 .mascot-content { display: grid; gap: clamp(40px, 8vw, 110px); padding-block: 10px; }
 .mascot-section { max-width: 46ch; }
@@ -195,48 +158,12 @@ html.reduce-motion .mascot[data-pose="idle"] .eye { animation: none; }
   <div class="mascot-grid">
     <div class="mascot-col">
       <div class="mascot" data-mascot data-pose="idle">
-<svg class="mascot__svg" viewBox="0 0 320 400" role="img" aria-label="A small round cyan mascot that changes pose as you read">
-  <defs>
-    <linearGradient id="mbody" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#a9f6ff"/><stop offset=".55" stop-color="#4fd6f2"/><stop offset="1" stop-color="#1e8fbe"/>
-    </linearGradient>
-    <linearGradient id="mbook" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#fff6e2"/><stop offset="1" stop-color="#e6d3ac"/>
-    </linearGradient>
-  </defs>
-  <ellipse class="mascot__shadow" cx="160" cy="376" rx="74" ry="12" fill="rgba(0,0,0,.35)"/>
-  <g class="mascot__rig">
-    <g class="mascot__leg mascot__leg--l"><rect x="118" y="292" width="28" height="62" rx="14" fill="url(#mbody)"/></g>
-    <g class="mascot__leg mascot__leg--r"><rect x="174" y="292" width="28" height="62" rx="14" fill="url(#mbody)"/></g>
-    <rect x="86" y="146" width="148" height="168" rx="74" fill="url(#mbody)"/>
-    <ellipse cx="160" cy="248" rx="46" ry="34" fill="rgba(255,255,255,.16)"/>
-    <g class="mascot__arm mascot__arm--l"><rect x="70" y="172" width="28" height="92" rx="14" fill="url(#mbody)"/></g>
-    <g class="mascot__arm mascot__arm--r"><rect x="222" y="172" width="28" height="92" rx="14" fill="url(#mbody)"/></g>
-    <g class="mascot__head">
-      <circle cx="160" cy="108" r="66" fill="url(#mbody)"/>
-      <circle cx="160" cy="108" r="66" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.5"/>
-      <g class="mascot__eyes">
-        <g class="eye eye--l"><circle cx="136" cy="102" r="8" fill="#05202e"/><circle cx="139" cy="99" r="2.6" fill="#fff"/></g>
-        <g class="eye eye--r"><circle cx="184" cy="102" r="8" fill="#05202e"/><circle cx="187" cy="99" r="2.6" fill="#fff"/></g>
-      </g>
-      <g class="mascot__brows">
-        <rect class="brow brow--l" x="122" y="80" width="28" height="5" rx="2.5" fill="#05202e"/>
-        <rect class="brow brow--r" x="170" y="80" width="28" height="5" rx="2.5" fill="#05202e"/>
-      </g>
-      <path class="mouth mouth--smile" d="M146 128 Q160 140 174 128" fill="none" stroke="#05202e" stroke-width="4" stroke-linecap="round"/>
-      <ellipse class="mouth mouth--o" cx="160" cy="132" rx="7" ry="9" fill="#05202e"/>
-      <path class="mouth mouth--small" d="M152 130 Q160 136 168 130" fill="none" stroke="#05202e" stroke-width="3.5" stroke-linecap="round"/>
-      <ellipse class="cheek cheek--l" cx="120" cy="122" rx="10" ry="5.5" fill="rgba(255,110,150,.35)"/>
-      <ellipse class="cheek cheek--r" cx="200" cy="122" rx="10" ry="5.5" fill="rgba(255,110,150,.35)"/>
-    </g>
-    <g class="mascot__book">
-      <rect x="94" y="194" width="132" height="92" rx="10" fill="url(#mbook)"/>
-      <path d="M160 198v84" stroke="#c9b48a" stroke-width="2"/>
-      <path d="M108 214h40M108 226h40M108 238h40M172 214h40M172 226h40M172 238h40" stroke="#b9a682" stroke-width="3" stroke-linecap="round"/>
-      <rect x="94" y="194" width="132" height="92" rx="10" fill="none" stroke="rgba(0,0,0,.12)"/>
-    </g>
-  </g>
-</svg>
+<div class="mascot__art">
+        <img class="mascot__pose mascot__pose--idle" src="../../assets/mascot/mascot-idle.webp" width="466" height="456" alt="" aria-hidden="true" decoding="async">
+        <img class="mascot__pose mascot__pose--read" src="../../assets/mascot/mascot-read.webp" width="466" height="456" alt="" aria-hidden="true" decoding="async">
+        <img class="mascot__pose mascot__pose--surprised" src="../../assets/mascot/mascot-surprised.webp" width="466" height="456" alt="" aria-hidden="true" decoding="async">
+        <img class="mascot__pose mascot__pose--wave" src="../../assets/mascot/mascot-wave.webp" width="466" height="456" alt="" aria-hidden="true" decoding="async">
+      </div>
 </div>
       <p class="mono mascot__state" data-mascot-state>pose · idle</p>
       <div class="mascot__picker" role="group" aria-label="Choose a pose">
@@ -273,7 +200,7 @@ html.reduce-motion .mascot[data-pose="idle"] .eye { animation: none; }
 
 <section class="wrap mf-notes" aria-label="Notes">
 <article class="mf-note"><span class="mono">Use it for</span><h2>A page with a host</h2><p>Guides, explainers, kids' products, onboarding — anywhere a character can point at the next thing. Keep it to one mascot and four or five poses; more becomes a cartoon, not a website.</p></article>
-<article class="mf-note"><span class="mono">Knobs</span><h2>Tune the acting</h2><ul><li><code>data-pose</code> on the mascot: idle / read / surprised / wave</li><li><code>rootMargin: -42% 0 -42%</code> sets the scroll trigger band</li><li><code>.5s var(--spring)</code> pose transitions</li><li><code>blink</code> 5.2 s loop</li></ul></article>
+<article class="mf-note"><span class="mono">Knobs</span><h2>Tune the acting</h2><ul><li><code>data-pose</code> on the mascot: idle / read / surprised / wave</li><li><code>rootMargin: -42% 0 -42%</code> sets the scroll trigger band</li><li><code>.5s var(--spring)</code> pose transitions</li><li><code>mascot-breathe</code> 4.6 s idle loop</li></ul></article>
 <article class="mf-note"><span class="mono">Reduced motion & perf</span><h2>Instant poses</h2><p>Under reduced motion every transition is removed and the blink stops — the pose still changes instantly, because state is not motion. The SVG is one inline file, no images, no libraries.</p></article>
 </section>
 </main>

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Three art directions before you build — like the treatments menu in a video director.
+"""Four art directions before you build — like the treatments menu in a video director.
 
     python3 tools/treatments.py --name acme --brief "A dental clinic in Udaipur" --out treatments/acme
     python3 tools/treatments.py --name acme --only midnight,pop
 
-Writes three complete DESIGN.md token sheets (A · Midnight, B · Paper, C · Pop) plus a README.md
+Writes four complete DESIGN.md token sheets (A · Midnight, B · Paper, C · Pop, D · Sunny) plus a README.md
 that compares them. The human picks one; the agent builds only that one. Copy the chosen folder's
 DESIGN.md to the site root and delete the rest.
 
@@ -68,6 +68,24 @@ TREATMENTS = {
         "image": "hard flash photography, acid lime gel light on near-black, glossy surfaces, "
                  "poster framing, no text",
         "avoid": "pastel gradients, thin serif type, soft shadows, more than two accent moments per screen",
+    },
+    "sunny": {
+        "label": "D · Sunny cast",
+        "tagline": "Powder blue, cream and coral. Chunky rounded type, flat illustration, bouncy spring motion.",
+        "works": "Kids, pets, food, learning, community — anything that should feel like a picture book, not a SaaS page.",
+        "bg": "#a9bdd6", "surface": "#f6efe3", "ink": "#2a2118", "muted": "#5f6b7d",
+        "accent": "#e2604a", "accent_ink": "#fff6f2", "line": "rgba(42,33,24,.16)",
+        "display": "Baloo 2", "body": "Nunito", "mono": "DM Mono",
+        "display_weight": 700, "body_weight": 400, "tracking": "-0.02em", "body_tracking": "0",
+        "leading": 1.6, "radius": 26, "radius_lg": 40,
+        "moves": [("choreographed cast entrance", "entrance", "spring 0.7 s, 80 ms stagger", "hero characters"),
+                  ("typewriter headline", "entrance", "45 ms/char", "hero title"),
+                  ("ambient bob", "time", "3–6 s loops, pauses offscreen", "floating cast"),
+                  ("poke on hover", "hover/focus", "spring 0.4 s", "each character"),
+                  ("sticky-tape wobble", "scroll", "lerp 0.12", "section titles")],
+        "image": "flat vector illustration, thick dark outlines, flat pastel fills, cream paper background, "
+                 "simple shapes, no gradients, no text",
+        "avoid": "dark glass panels, thin serif type, neon glow, 3D renders, more than 5 characters on screen",
     },
 }
 
