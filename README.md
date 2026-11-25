@@ -32,6 +32,9 @@ magnetic buttons. Every move is plain vanilla HTML/CSS/JS with a reduced-motion 
 - **Agent triage** — `python3 tools/brief.py --brief "..."` turns a one-line brief into a build plan
   (register → starter → recipes → one big moment), and `tools/taste_lint.py` fails the page that is
   technically fine and creatively empty. Any agent, any brief, same plan.
+- **Reference build** — [Paw Playlists](docs/reference/) is the quality bar for playful / mascot pages:
+  edge-bleed characters, staggered entrances and faces that act (blink, sing, surprised). Study it, don't
+  clone it.
 
 ## Use it with any agent
 
