@@ -4,6 +4,11 @@
 > the build pipeline, the QA gates every page must pass, and the rules. Craft playbook: [SKILL.md](SKILL.md).
 > Building blocks: [recipes/INDEX.md](recipes/INDEX.md). Starter pages: [templates/](templates/).
 
+<p align="center">
+  <a href="docs/reference/paw-playlists.mp4"><img src="docs/reference/paw-playlists.gif" alt="Paw Playlists reference build: storybook characters slide in, blink, sing and react" width="640"></a>
+  <br><sub><b>Reference build: Paw Playlists.</b> <a href="docs/reference/paw-playlists.mp4">▶ Watch with sound</a> · <a href="docs/reference/">why it works</a></sub>
+</p>
+
 Motion Field turns any coding agent (Claude Code, Codex, Cursor, Gemini CLI, Hark, Copilot…) into a motion
 designer that ships. Give it this repo and a brief, and it builds fast, accessible websites where things move
 because the reader did something: pinned heroes, horizontal galleries, 3D card walls, shaders, three.js objects,
